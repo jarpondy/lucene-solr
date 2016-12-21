@@ -248,25 +248,6 @@ public class TestBBCoreParser extends TestCoreParser {
     assertTrue("Expecting a MatchAllDocsQuery, but resulted in " + q.getClass(), q instanceof MatchAllDocsQuery);
   }
   
-  public void testNearBooleanNear() throws IOException, ParserException {
-    final Query q = parse("BBNearBooleanNear.xml");
-    dumpResults("testNearBooleanNear", q, 5);
-  }
-  
-  
-  //working version of (A OR B) N/5 C
-  public void testNearBoolean() throws IOException {
-    BooleanQuery bq = new BooleanQuery();
-    bq.add(new TermQuery(new Term("contents", "iranian")), BooleanClause.Occur.SHOULD);
-    bq.add(new TermQuery(new Term("contents", "north")), BooleanClause.Occur.SHOULD);
-    
-    FieldedQuery[] subQueries = new FieldedQuery[2];
-    subQueries[0] = FieldedBooleanQuery.toFieldedQuery(bq);
-    subQueries[1] = FieldedBooleanQuery.toFieldedQuery(new TermQuery(new Term("contents", "akbar")));
-    FieldedQuery fq = new UnorderedNearQuery(5, subQueries);
-    dumpResults("testNearBoolean", fq, 5);
-  }
-  
   public void testNearFirstBooleanMustXml() throws IOException, ParserException {
     final Query q = parse("BBNearFirstBooleanMust.xml");
     dumpResults("testNearFirstBooleanMustXml", q, 50);
@@ -282,26 +263,6 @@ public class TestBBCoreParser extends TestCoreParser {
     subQueries[1] = FieldedBooleanQuery.toFieldedQuery(new TermQuery(new Term("contents", "bank")));
     FieldedQuery fq = new UnorderedNearQuery(7, subQueries);
     dumpResults("testNearFirstBooleanMust", fq, 5);
-  }
-  
-  public void testNearTermQuery() throws ParserException, IOException {
-    int slop = 1;
-    FieldedQuery[] subqueries = new FieldedQuery[2];
-    subqueries[0] = new TermQuery(new Term("contents", "keihanshin"));
-    subqueries[1] = new TermQuery(new Term("contents", "real"));
-    Query q = new OrderedNearQuery(slop, true, subqueries);
-    dumpResults("NearPrefixQuery", q, 5);
-  }
-  
-  public void testPrefixedNearQuery() throws ParserException, IOException {
-    int slop = 1;
-    FieldedQuery[] subqueries = new FieldedQuery[2];
-    subqueries[0] = new PrefixQuery(new Term("contents", "keihanshi"));
-    ((MultiTermQuery)subqueries[0]).setRewriteMethod(MultiTermQuery.CONSTANT_SCORE_BOOLEAN_QUERY_REWRITE);
-    subqueries[1] = new PrefixQuery(new Term("contents", "rea"));
-    ((MultiTermQuery)subqueries[1]).setRewriteMethod(MultiTermQuery.CONSTANT_SCORE_BOOLEAN_QUERY_REWRITE);
-    Query q = new OrderedNearQuery(slop, true, subqueries);
-    dumpResults("NearPrefixQuery", q, 5);
   }
   
   public void testGenericTextQueryMaxBooleanClausesWithPrefixQuery() throws ParserException, IOException {
