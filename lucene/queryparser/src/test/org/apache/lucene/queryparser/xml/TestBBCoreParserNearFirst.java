@@ -17,7 +17,10 @@ package org.apache.lucene.queryparser.xml;
  * limitations under the License.
  */
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.xml.builders.NearFirstQueryBuilder;
+import org.apache.lucene.queryparser.xml.builders.WildcardNearQueryBuilder;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.FieldedQuery;
@@ -28,7 +31,26 @@ import org.apache.lucene.search.intervals.UnorderedNearQuery;
 
 import java.io.IOException;
 
-public class TestBBCoreParserNearFirst extends TestBBCoreParser {
+public class TestBBCoreParserNearFirst extends TestCoreParser {
+
+  private class CoreParserNearFirstQuery extends CoreParser {
+    CoreParserNearFirstQuery(String defaultField, Analyzer analyzer) {
+      super(defaultField, analyzer);
+
+      // the query builder to be tested
+      queryFactory.addBuilder("NearFirstQuery", new NearFirstQueryBuilder(queryFactory));
+    }
+  }
+
+  @Override
+  protected CoreParser newCoreParser(String defaultField, Analyzer analyzer) {
+    final CoreParser coreParser = new CoreParserNearFirstQuery(defaultField, analyzer);
+
+    // some additional builders to help
+    coreParser.addQueryBuilder("WildcardNearQuery", new WildcardNearQueryBuilder(analyzer));
+
+    return coreParser;
+  }
 
   public void testNearFirstBooleanMustXml() throws IOException, ParserException {
     final Query q = parse("BBNearFirstBooleanMust.xml");
