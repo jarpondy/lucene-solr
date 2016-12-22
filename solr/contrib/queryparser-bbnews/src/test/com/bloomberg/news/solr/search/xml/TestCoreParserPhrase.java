@@ -35,7 +35,8 @@ public class TestCoreParserPhrase extends TestCoreParser {
       super(defaultField, analyzer);
 
       // the query builder to be tested
-      queryFactory.addBuilder("PhraseQuery", new PhraseQueryBuilder(analyzer));
+      queryFactory.addBuilder("PhraseQuery", new PhraseQueryBuilder(
+        defaultField, analyzer, null, queryFactory));
     }
   }
 

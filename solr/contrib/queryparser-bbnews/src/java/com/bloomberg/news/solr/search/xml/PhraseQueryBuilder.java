@@ -16,6 +16,8 @@ import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.IOUtils;
+import org.apache.solr.request.SolrQueryRequest;
+import org.apache.solr.search.SolrQueryBuilder;
 
 import org.w3c.dom.Element;
 
@@ -36,11 +38,13 @@ import org.w3c.dom.Element;
  * limitations under the License.
  */
 
-public class PhraseQueryBuilder implements QueryBuilder {
+public class PhraseQueryBuilder extends SolrQueryBuilder {
 
     protected Analyzer analyzer;
 
-    public PhraseQueryBuilder(Analyzer analyzer) {
+    public PhraseQueryBuilder(String defaultField, Analyzer analyzer,
+                              SolrQueryRequest req, QueryBuilder queryFactory) {
+        super(defaultField, analyzer, req, queryFactory);
         this.analyzer = analyzer;
     }
 
