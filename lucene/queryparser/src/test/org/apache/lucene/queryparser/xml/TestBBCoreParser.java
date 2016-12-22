@@ -248,23 +248,6 @@ public class TestBBCoreParser extends TestCoreParser {
     assertTrue("Expecting a MatchAllDocsQuery, but resulted in " + q.getClass(), q instanceof MatchAllDocsQuery);
   }
   
-  public void testNearFirstBooleanMustXml() throws IOException, ParserException {
-    final Query q = parse("BBNearFirstBooleanMust.xml");
-    dumpResults("testNearFirstBooleanMustXml", q, 50);
-  }
-  
-  public void testNearFirstBooleanMust() throws IOException {
-    BooleanQuery bq = new BooleanQuery();
-    bq.add(new TermQuery(new Term("contents", "upholds")), BooleanClause.Occur.MUST);
-    bq.add(new TermQuery(new Term("contents", "building")), BooleanClause.Occur.MUST);
-    
-    FieldedQuery[] subQueries = new FieldedQuery[2];
-    subQueries[0] = FieldedBooleanQuery.toFieldedQuery(bq);
-    subQueries[1] = FieldedBooleanQuery.toFieldedQuery(new TermQuery(new Term("contents", "bank")));
-    FieldedQuery fq = new UnorderedNearQuery(7, subQueries);
-    dumpResults("testNearFirstBooleanMust", fq, 5);
-  }
-  
   public void testGenericTextQueryMaxBooleanClausesWithPrefixQuery() throws ParserException, IOException {
     final int maxClauseCount = BooleanQuery.getMaxClauseCount();
     try {
