@@ -17,11 +17,27 @@ package org.apache.lucene.queryparser.xml;
  * limitations under the License.
  */
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.xml.builders.PhraseQueryBuilder;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.PhraseQuery;
 
-public class TestBBCoreParserPhrase extends TestBBCoreParser {
+public class TestBBCoreParserPhrase extends TestCoreParser {
+
+  private class CoreParserPhraseQuery extends CoreParser {
+    CoreParserPhraseQuery(String defaultField, Analyzer analyzer) {
+      super(defaultField, analyzer);
+
+      // the query builder to be tested
+      queryFactory.addBuilder("PhraseQuery", new PhraseQueryBuilder(analyzer));
+    }
+  }
+
+  @Override
+  protected CoreParser newCoreParser(String defaultField, Analyzer analyzer) {
+    return new CoreParserPhraseQuery(defaultField, analyzer);
+  }
 
   public void testPhraseQueryXML() throws Exception {
     Query q = parse("BBPhraseQuery.xml");
