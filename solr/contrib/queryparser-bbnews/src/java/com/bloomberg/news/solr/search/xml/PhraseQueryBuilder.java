@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml.builders;
+package com.bloomberg.news.solr.search.xml;
 
 import java.io.IOException;
 
@@ -36,7 +36,6 @@ import org.w3c.dom.Element;
  * limitations under the License.
  */
 
-@Deprecated // in favour of com.bloomberg.news.lucene.queryparser.xml.builders.PhraseQueryBuilder
 public class PhraseQueryBuilder implements QueryBuilder {
 
     protected Analyzer analyzer;

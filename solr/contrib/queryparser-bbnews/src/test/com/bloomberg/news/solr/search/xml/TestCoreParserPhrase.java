@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml;
+package com.bloomberg.news.solr.search.xml;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -19,12 +19,16 @@ package org.apache.lucene.queryparser.xml;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryparser.xml.builders.PhraseQueryBuilder;
+import org.apache.lucene.queryparser.xml.CoreParser;
+import org.apache.lucene.queryparser.xml.ParserException;
+import org.apache.lucene.queryparser.xml.TestCoreParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.PhraseQuery;
 
-@Deprecated // in favour of com.bloomberg.news.*.TestCoreParserPhrase
-public class TestBBCoreParserPhrase extends TestCoreParser {
+import java.io.IOException;
+import java.io.InputStream;
+
+public class TestCoreParserPhrase extends TestCoreParser {
 
   private class CoreParserPhraseQuery extends CoreParser {
     CoreParserPhraseQuery(String defaultField, Analyzer analyzer) {
@@ -40,21 +44,33 @@ public class TestBBCoreParserPhrase extends TestCoreParser {
     return new CoreParserPhraseQuery(defaultField, analyzer);
   }
 
+  @Override
+  protected Query parse(String xmlFileName) throws ParserException, IOException {
+    try (InputStream xmlStream = TestCoreParserPhrase.class.getResourceAsStream(xmlFileName)) {
+      if (xmlStream == null) {
+        return super.parse(xmlFileName);
+      }
+      assertNotNull("Test XML file " + xmlFileName + " cannot be found", xmlStream);
+      Query result = coreParser().parse(xmlStream);
+      return result;
+    }
+  }
+
   public void testPhraseQueryXML() throws Exception {
-    Query q = parse("BBPhraseQuery.xml");
+    Query q = parse("PhraseQuery.xml");
     assertTrue("Expecting a PhraseQuery, but resulted in " + q.getClass(), q instanceof PhraseQuery);
     dumpResults("PhraseQuery", q, 5);
   }
 
   public void testPhraseQueryXMLWithStopwordsXML() throws Exception {
     if (analyzer() instanceof StandardAnalyzer) {
-      parseShouldFail("BBPhraseQueryStopwords.xml",
+      parseShouldFail("PhraseQueryStopwords.xml",
           "Empty phrase query generated for field:contents, phrase:and to a");
     }
   }
 
   public void testPhraseQueryXMLWithNoTextXML() throws Exception {
-    parseShouldFail("BBPhraseQueryEmpty.xml",
+    parseShouldFail("PhraseQueryEmpty.xml",
         "PhraseQuery has no text");
   }
 
