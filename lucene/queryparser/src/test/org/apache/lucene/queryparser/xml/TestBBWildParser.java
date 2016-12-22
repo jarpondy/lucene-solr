@@ -18,6 +18,7 @@ package org.apache.lucene.queryparser.xml;
  */
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.cjk.CJKWidthFilter;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
@@ -45,31 +46,30 @@ import org.junit.BeforeClass;
 
 import java.io.Reader;
 
-public class TestWildParser extends LuceneTestCase {
-  private final class BBFinancialStandardAnalyzer extends Analyzer {
+public class TestBBWildParser extends LuceneTestCase {
+  private final class TestAnalyzer extends Analyzer {
     // This is an approximation of an Analyzer that is actually built in Solr
     // using a config file.
-    public BBFinancialStandardAnalyzer() {
+    public TestAnalyzer() {
     }
 
     @Override
     protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-      final BBFinancialStandardTokenizer src = new BBFinancialStandardTokenizer(TEST_VERSION_CURRENT, reader);
+      final Tokenizer src = new BBFinancialStandardTokenizer(TEST_VERSION_CURRENT, reader);
       TokenStream tok = new ICUFoldingFilter(src);
-      //   tok = new WordDelimiterFilter(null, src, null, 0, null);
       tok = new LowerCaseFilter(TEST_VERSION_CURRENT, tok);
       return new TokenStreamComponents(src, tok);
     }
   }
 
-  private final class BBFinancialEnglishStemAnalyzer extends Analyzer {
+  private final class TestEnglishStemAnalyzer extends Analyzer {
     // Let's make sure that we do the right thing if our analyzer does stemming.
-    public BBFinancialEnglishStemAnalyzer() {
+    public TestEnglishStemAnalyzer() {
     }
 
     @Override
     protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-      final BBFinancialStandardTokenizer src = new BBFinancialStandardTokenizer(TEST_VERSION_CURRENT, reader);
+      final Tokenizer src = new BBFinancialStandardTokenizer(TEST_VERSION_CURRENT, reader);
       TokenStream tok = new ICUFoldingFilter(src);
       tok = new LowerCaseFilter(TEST_VERSION_CURRENT, tok);
       tok = new PorterStemFilter(tok);
@@ -77,10 +77,10 @@ public class TestWildParser extends LuceneTestCase {
     }
   }
 
-  private final class JapaneseAnalyzerDiscardPunct extends Analyzer {
+  private final class TestJapaneseAnalyzerDiscardPunct extends Analyzer {
     // This is an approximation of an Analyzer that is actually built in Solr
     // using a config file.
-    public JapaneseAnalyzerDiscardPunct() {
+    public TestJapaneseAnalyzerDiscardPunct() {
     }
 
     @Override
@@ -90,7 +90,6 @@ public class TestWildParser extends LuceneTestCase {
       tok = new JapaneseBaseFormFilter(tok);
       tok = new CJKWidthFilter(tok);
       tok = new JapaneseKatakanaStemFilter(tok);
-      //      tok = new SynonymFilter(src, null, true);
       tok = new LowerCaseFilter(TEST_VERSION_CURRENT, tok);
       return new TokenStreamComponents(src, tok);
     }
@@ -109,17 +108,9 @@ public class TestWildParser extends LuceneTestCase {
       tok = new JapaneseBaseFormFilter(tok);
       tok = new CJKWidthFilter(tok);
       tok = new JapaneseKatakanaStemFilter(tok);
-      //      tok = new SynonymFilter(src, null, true);
       tok = new LowerCaseFilter(TEST_VERSION_CURRENT, tok);
       return new TokenStreamComponents(src, tok);
     }
-  }
-  @BeforeClass
-  public static void beforeClass() throws Exception {
-  }
-
-  @AfterClass
-  public static void afterClass() throws Exception {
   }
 
   private static void checkQuery(WildcardNearQueryParser p, String query, String result) throws Exception {
@@ -154,7 +145,7 @@ public class TestWildParser extends LuceneTestCase {
   public void testWildcardNearQueryParser() throws Exception {
     String field = "headline";
     boolean ignoreWC = false;
-    WildcardNearQueryParser p = new WildcardNearQueryParser(field, new BBFinancialStandardAnalyzer());
+    WildcardNearQueryParser p = new WildcardNearQueryParser(field, new TestAnalyzer());
 
     checkQueryEqual(p, "*", new MatchAllDocsQuery(), ignoreWC);
     checkQueryEqual(p, "?", fixRewrite(new WildcardQuery(new Term(field, "?"))), ignoreWC);
@@ -275,7 +266,7 @@ public class TestWildParser extends LuceneTestCase {
   public void testWildcardNearQueryParserStemming() throws Exception {
     String field = "body_en";
     boolean ignoreWC = false;
-    WildcardNearQueryParser p = new WildcardNearQueryParser(field, new BBFinancialEnglishStemAnalyzer());
+    WildcardNearQueryParser p = new WildcardNearQueryParser(field, new TestEnglishStemAnalyzer());
 
     checkQueryEqual(p, "*", new MatchAllDocsQuery(), ignoreWC);
     checkQueryEqual(p, "?", fixRewrite(new WildcardQuery(new Term(field, "?"))), ignoreWC);
@@ -337,7 +328,7 @@ public class TestWildParser extends LuceneTestCase {
   public void testWildcardNearQueryParserJapaneseDiscardPunct() throws Exception {
     String field = "headline_ja";
     boolean ignoreWC = false;
-    WildcardNearQueryParser p = new WildcardNearQueryParser(field, new JapaneseAnalyzerDiscardPunct());
+    WildcardNearQueryParser p = new WildcardNearQueryParser(field, new TestJapaneseAnalyzerDiscardPunct());
 
     FieldedQuery q2 = new OrderedNearQuery(0, new FieldedQuery[] {
         new TermQuery(new Term(field, "london")),
