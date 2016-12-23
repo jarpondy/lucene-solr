@@ -1,4 +1,4 @@
-This README file is only about the [example](contrib/ltr/example) directory content.
+This README file is only about the [example](example) directory content.
 
 Please refer to the Solr Reference Guide's section on [Result Reranking](https://cwiki.apache.org/confluence/display/solr/Result+Reranking) section for broader information on Learning to Rank (LTR) with Apache Solr.
 
