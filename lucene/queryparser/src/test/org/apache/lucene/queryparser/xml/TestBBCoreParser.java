@@ -151,17 +151,17 @@ public class TestBBCoreParser extends TestCoreParser {
   }
   
   public void testTermsFilterWithSingleTerm() throws Exception {
-    Query q = parse("TermsFilterQueryWithSingleTerm.xml");
+    Query q = parse("BBTermsFilterQueryWithSingleTerm.xml");
     dumpResults("TermsFilter With SingleTerm", q, 5);
   }
   
   public void testTermsFilterQueryWithStopword() throws Exception {
-    Query q = parse("TermsFilterQueryStopwords.xml");
+    Query q = parse("BBTermsFilterQueryStopwords.xml");
     dumpResults("TermsFilter with Stopword", q, 5);
   }
   
   public void testTermsFilterQueryWithOnlyStopword() throws Exception {
-    Query q = parse("TermsFilterOnlyStopwords.xml");
+    Query q = parse("BBTermsFilterOnlyStopwords.xml");
     dumpResults("TermsFilter with all stop words", q, 5);
   }
 
