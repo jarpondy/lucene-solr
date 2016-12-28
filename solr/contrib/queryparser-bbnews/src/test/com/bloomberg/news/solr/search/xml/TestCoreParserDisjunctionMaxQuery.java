@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml;
+package com.bloomberg.news.solr.search.xml;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -18,14 +18,19 @@ package org.apache.lucene.queryparser.xml;
  */
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.queryparser.xml.CoreParser;
+import org.apache.lucene.queryparser.xml.ParserException;
+import org.apache.lucene.queryparser.xml.TestCoreParser;
 import org.apache.lucene.queryparser.xml.builders.BBDisjunctionMaxQueryBuilder;
 import org.apache.lucene.queryparser.xml.builders.WildcardNearQueryBuilder;
 import org.apache.lucene.search.DisjunctionMaxQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 
-@Deprecated // in favour of com.bloomberg.news equivalent
-public class TestBBCoreParserDisjunctionMaxQuery extends TestCoreParser {
+import java.io.IOException;
+import java.io.InputStream;
+
+public class TestCoreParserDisjunctionMaxQuery extends TestCoreParser {
 
   private class CoreParserDisjunctionMaxQuery extends CoreParser {
     CoreParserDisjunctionMaxQuery(String defaultField, Analyzer analyzer) {
@@ -46,8 +51,19 @@ public class TestBBCoreParserDisjunctionMaxQuery extends TestCoreParser {
     return coreParser;
   }
 
+  @Override
+  protected Query parse(String xmlFileName) throws ParserException, IOException {
+    try (InputStream xmlStream = TestCoreParserDisjunctionMaxQuery.class.getResourceAsStream(xmlFileName)) {
+      if (xmlStream == null) {
+        return super.parse(xmlFileName);
+      }
+      Query result = coreParser().parse(xmlStream);
+      return result;
+    }
+  }
+
   public void testDisjunctionMaxQueryTripleWildcardNearQuery() throws Exception {
-    Query q = parse("BBDisjunctionMaxQueryTripleWildcardNearQuery.xml");
+    Query q = parse("DisjunctionMaxQueryTripleWildcardNearQuery.xml");
     int size = ((DisjunctionMaxQuery)q).getDisjuncts().size();
     assertTrue("Expecting 2 clauses, but resulted in " + size, size == 2);
     DisjunctionMaxQuery dm = (DisjunctionMaxQuery)q;
@@ -58,7 +74,7 @@ public class TestBBCoreParserDisjunctionMaxQuery extends TestCoreParser {
   }
 
   public void testDisjunctionMaxQueryMatchAllDocsQuery() throws Exception {
-    final Query q = parse("BBDisjunctionMaxQueryMatchAllDocsQuery.xml");
+    final Query q = parse("DisjunctionMaxQueryMatchAllDocsQuery.xml");
     assertTrue("Expecting a MatchAllDocsQuery, but resulted in " + q.getClass(), q instanceof MatchAllDocsQuery);
   }
 

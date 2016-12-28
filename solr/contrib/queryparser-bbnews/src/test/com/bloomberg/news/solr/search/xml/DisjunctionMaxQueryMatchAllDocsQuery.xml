@@ -15,7 +15,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<!-- deprecated in favour of solr/contrib equivalent -->
 <DisjunctionMaxQuery fieldName='content'>
   <MatchAllDocsQuery/>
   <WildcardNearQuery> </WildcardNearQuery>
