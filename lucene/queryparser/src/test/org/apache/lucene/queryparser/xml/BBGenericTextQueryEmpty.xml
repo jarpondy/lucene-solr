@@ -16,4 +16,5 @@
  limitations under the License.
 -->
 <!-- this will end up MatchAllDocs query -->
+<!-- deprecated in favour of com.bloomberg.news.* equivalent -->
 <GenericTextQuery fieldName="contents" boost="0.6"></GenericTextQuery>

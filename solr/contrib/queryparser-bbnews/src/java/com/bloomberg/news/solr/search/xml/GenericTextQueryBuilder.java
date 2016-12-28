@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml.builders;
+package com.bloomberg.news.solr.search.xml;
 
 import java.io.IOException;
 
@@ -12,6 +12,7 @@ import org.apache.lucene.queries.function.valuesource.ConstValueSource;
 import org.apache.lucene.queryparser.xml.DOMUtils;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
+import org.apache.lucene.queryparser.xml.builders.WildcardNearQueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -38,24 +39,23 @@ import org.w3c.dom.Element;
  */
 
 /**
- * Builds a MatchAllDocsQuery if the terms found are zero. 
- * Builds a TermQuery If there is only one resulting term after analyzer being applied 
+ * Builds a MatchAllDocsQuery if the terms found are zero.
+ * Builds a TermQuery If there is only one resulting term after analyzer being applied
  * Builds a PhraseQuery if there are multiple terms.
  */
-@Deprecated // in favour of com.bloomberg.news.*.GenericTextQueryrBuilder
 public class GenericTextQueryBuilder implements QueryBuilder {
-  
+
   protected Analyzer analyzer;
-  
+
   private static final char WILDCARD_STRING = '*';
   private static final char WILDCARD_CHAR = '?';
   private static final char WILDCARD_ESCAPE = '\\';
-  
+
   public GenericTextQueryBuilder(Analyzer analyzer) {
     this.analyzer = analyzer;
   }
-  
-   
+
+
   @Override
   public Query getQuery(Element e) throws ParserException {
       String field = DOMUtils.getAttributeWithInheritanceOrFail(e,
@@ -68,15 +68,15 @@ public class GenericTextQueryBuilder implements QueryBuilder {
       {
         WildcardNearQueryParser p = new WildcardNearQueryParser(field, analyzer);
         q = p.parse(text);
-        
+
         float boost = DOMUtils.getAttribute(e, "boost", 1.0f);
         if (boost != 1.0f) {
           q = new BoostedQuery(q, new ConstValueSource(boost));
         }
-        
+
         return q;
       }
-      
+
       PhraseQuery pq = null;//this will be instantiated only if the query results in multiple terms
       Term firstTerm = null;//Keeps the first Term in the query and if there are more terms found then this will be consumed by above PhraseQuery
       int firstPosition = 0;
@@ -105,8 +105,8 @@ public class GenericTextQueryBuilder implements QueryBuilder {
           while (source.incrementToken()) {
               termAtt.fillBytesRef();
               Term t = new Term(field, BytesRef.deepCopyOf(bytes));
-              
-              int positionIncrement = (posIncrAtt != null) ? posIncrAtt.getPositionIncrement() : 1;              
+
+              int positionIncrement = (posIncrAtt != null) ? posIncrAtt.getPositionIncrement() : 1;
               position += positionIncrement;
 
               if (null == firstTerm) {
@@ -119,7 +119,7 @@ public class GenericTextQueryBuilder implements QueryBuilder {
                 pq = new PhraseQuery();
                 pq.add(firstTerm, firstPosition);
               }
-              
+
               pq.add(t, position);
             }
 
@@ -135,7 +135,7 @@ public class GenericTextQueryBuilder implements QueryBuilder {
       }
 
       if (firstTerm == null) {
-        return new MatchAllDocsQuery();      
+        return new MatchAllDocsQuery();
       } else if (pq == null) {
           TermQuery tq = new TermQuery(firstTerm);
           tq.setBoost(DOMUtils.getAttribute(e, "boost", 1.0f));
@@ -146,7 +146,7 @@ public class GenericTextQueryBuilder implements QueryBuilder {
           return pq;
       }
   }
-  
+
   private static boolean containsWildcard(String text) {
     for (int i = 0; i < text.length();) {
        final int c = text.codePointAt(i);
@@ -164,7 +164,7 @@ public class GenericTextQueryBuilder implements QueryBuilder {
          break;
       }
       i += length;
-    }    
+    }
     return false;
   }
 }

@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml;
+package com.bloomberg.news.solr.search.xml;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -19,7 +19,9 @@ package org.apache.lucene.queryparser.xml;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryparser.xml.builders.GenericTextQueryBuilder;
+import org.apache.lucene.queryparser.xml.CoreParser;
+import org.apache.lucene.queryparser.xml.ParserException;
+import org.apache.lucene.queryparser.xml.TestCoreParser;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.PhraseQuery;
@@ -27,9 +29,9 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
 import java.io.IOException;
+import java.io.InputStream;
 
-@Deprecated // in favour of com.bloomberg.news.*.TestCoreParserGenericText
-public class TestBBCoreParserGenericText extends TestCoreParser {
+public class TestCoreParserGenericText extends TestCoreParser {
 
   private class CoreParserGenericText extends CoreParser {
     CoreParserGenericText(String defaultField, Analyzer analyzer) {
@@ -44,70 +46,81 @@ public class TestBBCoreParserGenericText extends TestCoreParser {
   protected CoreParser newCoreParser(String defaultField, Analyzer analyzer) {
     return new CoreParserGenericText(defaultField, analyzer);
   }
-  
+
+  @Override
+  protected Query parse(String xmlFileName) throws ParserException, IOException {
+    try (InputStream xmlStream = TestCoreParserGenericText.class.getResourceAsStream(xmlFileName)) {
+      if (xmlStream == null) {
+        return super.parse(xmlFileName);
+      }
+      Query result = coreParser().parse(xmlStream);
+      return result;
+    }
+  }
+
   public void testGenericTextQueryXML() throws Exception {
-    Query q = parse("BBGenericTextQuery.xml");
+    Query q = parse("GenericTextQuery.xml");
     assertTrue("Expecting a PhraseQuery, but resulted in " + q.getClass(), q instanceof PhraseQuery);
     dumpResults("GenericTextQuery", q, 5);
   }
-  
+
   public void testGenericTextQuerySingleTermXML() throws Exception {
-    Query q = parse("BBGenericTextQuerySingleTerm.xml");
+    Query q = parse("GenericTextQuerySingleTerm.xml");
     assertTrue("Expecting a TermQuery, but resulted in " + q.getClass(), q instanceof TermQuery);
     dumpResults("GenericTextQuery", q, 5);
   }
-  
+
   public void testGenericTextQueryWithStopwordsXML() throws Exception {
-    Query q = parse("BBGenericTextQueryStopwords.xml");
+    Query q = parse("GenericTextQueryStopwords.xml");
     assertTrue("Expecting a PhraseQuery, but resulted in " + q.getClass(), q instanceof PhraseQuery);
     dumpResults("GenericTextQuery with stopwords", q, 5);
   }
-  
+
   public void testGenericTextQueryWithAllStopwordsXML() throws Exception {
-    Query q = parse("BBGenericTextQueryAllStopwords.xml");
+    Query q = parse("GenericTextQueryAllStopwords.xml");
     if (analyzer() instanceof StandardAnalyzer)
       assertTrue("Expecting a MatchAllDocsQuery, but resulted in " + q.getClass(), q instanceof MatchAllDocsQuery);
     dumpResults("GenericTextQuery with just stopwords", q, 5);
   }
-  
+
   public void testGenericTextQueryWithNoTextXML() throws Exception {
-    Query q = parse("BBGenericTextQueryEmpty.xml");
+    Query q = parse("GenericTextQueryEmpty.xml");
     assertTrue("Expecting a MatchAllDocsQuery, but resulted in " + q.getClass(), q instanceof MatchAllDocsQuery);
     dumpResults("GenericTextQuery with no text", q, 5);
   }
-  
+
   public void testGenericTextQueryPhraseWildcardXML() throws Exception {
-    Query q = parse("BBGenericTextQueryPhraseWildcard.xml");
+    Query q = parse("GenericTextQueryPhraseWildcard.xml");
     dumpResults("GenericTextQuery with a phrase wildcard", q, 5);
   }
-  
+
   public void testGenericTextQueryTrailingWildcardXML() throws Exception {
-    Query q = parse("BBGenericTextQueryTrailingWildcard.xml");
+    Query q = parse("GenericTextQueryTrailingWildcard.xml");
     dumpResults("GenericTextQuery with a trailing wildcard", q, 5);
   }
 
   public void testGenericTextQueryMultiWildcardXML() throws Exception {
-    Query q = parse("BBGenericTextQueryMultiWildcard.xml");
+    Query q = parse("GenericTextQueryMultiWildcard.xml");
     dumpResults("GenericTextQuery with multiple terms containing wildcards", q, 5);
   }
-  
+
   public void testGenericTextQueryPhraseWildcard2XML() throws Exception {
-    Query q = parse("BBGenericTextQueryPhraseWildcard2.xml");
+    Query q = parse("GenericTextQueryPhraseWildcard2.xml");
     dumpResults("GenericTextQuery with a phrase wildcard", q, 5);
   }
-  
+
   public void testGenericTextQueryTrailingWildcard2XML() throws Exception {
-    Query q = parse("BBGenericTextQueryTrailingWildcard2.xml");
+    Query q = parse("GenericTextQueryTrailingWildcard2.xml");
     dumpResults("GenericTextQuery with a trailing wildcard", q, 5);
   }
 
   public void testGenericTextQueryMultiWildcard2XML() throws Exception {
-    Query q = parse("BBGenericTextQueryMultiWildcard2.xml");
+    Query q = parse("GenericTextQueryMultiWildcard2.xml");
     dumpResults("GenericTextQuery with multiple terms containing wildcards", q, 5);
   }
 
   public void testGenericTextQueryMultiClauseXML() throws Exception {
-    Query q = parse("BBGenericTextQueryMultiClause.xml");
+    Query q = parse("GenericTextQueryMultiClause.xml");
     dumpResults("GenericTextQuery. BooleanQuery containing multiple GenericTextQuery clauses with different boost factors", q, 5);
   }
 
@@ -115,7 +128,7 @@ public class TestBBCoreParserGenericText extends TestCoreParser {
     final int maxClauseCount = BooleanQuery.getMaxClauseCount();
     try {
       BooleanQuery.setMaxClauseCount(3);
-      final Query q = parse("BBGenericTextQueryMaxBooleanClausesWithPrefixQuery.xml");
+      final Query q = parse("GenericTextQueryMaxBooleanClausesWithPrefixQuery.xml");
       dumpResults("GenericTextQueryMaxBooleanClausesWithPrefixQuery", q, 5);
     } finally {
       BooleanQuery.setMaxClauseCount(maxClauseCount);

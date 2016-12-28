@@ -15,5 +15,5 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<!-- deprecated in favour of com.bloomberg.news.* equivalent -->
-<GenericTextQuery fieldName='contents' wnq='true'>inc*</GenericTextQuery>
+<!-- PhraseQuery: GenericTextQuery with multiple terms will end up in PhraseQuery -->
+<GenericTextQuery fieldName="contents" boost="0.6">European currency markets</GenericTextQuery>

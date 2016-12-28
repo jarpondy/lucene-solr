@@ -17,4 +17,5 @@
 -->
 <!-- this is a query with some stop words in it and will result in a PhraseQuery. 
 Stop words "to" and "and" should not cause an issue of matching "bankers <some stop word> dealers"-->
+<!-- deprecated in favour of com.bloomberg.news.* equivalent -->
 <GenericTextQuery fieldName="contents" boost="0.6">to bankers and dealers</GenericTextQuery>

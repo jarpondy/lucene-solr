@@ -15,5 +15,5 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<!-- deprecated in favour of com.bloomberg.news.* equivalent -->
-<GenericTextQuery fieldName='contents' wnq='true'>inc*</GenericTextQuery>
+<!-- single term query should end up in TermQuery -->
+<GenericTextQuery fieldName="contents" boost="0.6">currency</GenericTextQuery>

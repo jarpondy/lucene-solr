@@ -15,5 +15,5 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<!-- deprecated in favour of com.bloomberg.news.* equivalent -->
-<GenericTextQuery fieldName='contents' wnq='true'>inc*</GenericTextQuery>
+<!-- This query contains only stop words. Standard tokenizer would remove all the stop words and this would result in an empty query-->
+<GenericTextQuery fieldName="contents" boost="0.6">and to a</GenericTextQuery>

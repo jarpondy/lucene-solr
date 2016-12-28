@@ -16,4 +16,5 @@
  limitations under the License.
 -->
 <!-- PhraseQuery: GenericTextQuery with multiple terms will end up in PhraseQuery -->
+<!-- deprecated in favour of com.bloomberg.news.* equivalent -->
 <GenericTextQuery fieldName="contents" boost="0.6">European currency markets</GenericTextQuery>
