@@ -5,7 +5,7 @@ import org.apache.lucene.queryparser.xml.CoreParser;
 import org.apache.lucene.queryparser.xml.FilterBuilder;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
-import org.apache.lucene.queryparser.xml.TermBuilder;
+import org.apache.lucene.queryparser.xml.BBTermBuilder;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.Element;
 
@@ -36,7 +36,7 @@ public class TermFreqBuildersWrapper implements QueryBuilder {
 
     final CoreParser coreParser = (CoreParser)queryFactory;
 
-    final TermBuilder termBuilder = new TermBuilder(analyzer);
+    final BBTermBuilder termBuilder = new BBTermBuilder(analyzer);
 
     {
       QueryBuilder termQueryBuilder = new BBTermQueryBuilder(termBuilder);

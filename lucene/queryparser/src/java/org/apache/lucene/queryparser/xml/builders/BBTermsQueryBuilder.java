@@ -9,7 +9,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.queryparser.xml.DOMUtils;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
-import org.apache.lucene.queryparser.xml.TermBuilder;
+import org.apache.lucene.queryparser.xml.BBTermBuilder;
 import org.w3c.dom.Element;
 
 /*
@@ -36,13 +36,13 @@ import org.w3c.dom.Element;
  */
 public class BBTermsQueryBuilder implements QueryBuilder {
 
-  private final TermBuilder termBuilder;
+  private final BBTermBuilder termBuilder;
 
-  public BBTermsQueryBuilder(TermBuilder termBuilder) {
+  public BBTermsQueryBuilder(BBTermBuilder termBuilder) {
     this.termBuilder = termBuilder;
   }
 
-  private class TermsQueryProcessor implements TermBuilder.TermProcessor {
+  private class TermsQueryProcessor implements BBTermBuilder.BBTermProcessor {
     private BooleanQuery bq = null;//this will be instantiated only if the TermsQuery results in multiple terms
     private TermQuery    firstTq = null;//Keeps the first TermQuery for the first Term in the query and if there are more terms found then this will be consumed by above BooleanQuery
     private final Element xmlQueryElement;

@@ -5,8 +5,8 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.queryparser.xml.DOMUtils;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
-import org.apache.lucene.queryparser.xml.SingleTermProcessor;
-import org.apache.lucene.queryparser.xml.TermBuilder;
+import org.apache.lucene.queryparser.xml.BBSingleTermProcessor;
+import org.apache.lucene.queryparser.xml.BBTermBuilder;
 import org.w3c.dom.Element;
 
 /*
@@ -31,15 +31,15 @@ import org.w3c.dom.Element;
  */
 public class BBTermQueryBuilder implements QueryBuilder {
 
-  protected final TermBuilder termBuilder;
+  protected final BBTermBuilder termBuilder;
 
-  public BBTermQueryBuilder(TermBuilder termBuilder) {
+  public BBTermQueryBuilder(BBTermBuilder termBuilder) {
     this.termBuilder = termBuilder;
   }
 
   @Override
   public Query getQuery(Element e) throws ParserException {
-    SingleTermProcessor tp = new SingleTermProcessor();
+    BBSingleTermProcessor tp = new BBSingleTermProcessor();
     String field = DOMUtils.getAttributeWithInheritanceOrFail(e, "fieldName");
     //extract the value and fail if there is no value. 
     //This is a query builder for one and only one term

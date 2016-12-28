@@ -32,22 +32,22 @@ import org.w3c.dom.NodeList;
  * Implemented by objects that produce Lucene Term objects from XML streams. Implementations are
  * expected to be thread-safe so that they can be used to simultaneously parse multiple XML documents.
  */
-public class TermBuilder {
+public class BBTermBuilder {
 
   private final Analyzer analyzer;
 
-  public TermBuilder(Analyzer analyzer) {
+  public BBTermBuilder(Analyzer analyzer) {
     this.analyzer = analyzer;
   }
 
-  public interface TermProcessor {
+  public interface BBTermProcessor {
     //callback for each term found during processing the field value
     public void process(Term t);
   };  
 
   //use this if you already have a field name and value and would like to apply analyzer and get Term/Terms.
   //TermProcess.process callback will be called for each term found
-  public void extractTerms(TermProcessor tp, String field, String value) throws ParserException {
+  public void extractTerms(BBTermProcessor tp, String field, String value) throws ParserException {
     if (null == analyzer) {
       tp.process(new Term(field, value));
     } else {
@@ -73,7 +73,7 @@ public class TermBuilder {
   }
 
   //Handles nested Term TermQueries and/or not throws any exceptions on empty elements being found.
-  public void extractTerms(TermProcessor tp, final Element e) throws ParserException {
+  public void extractTerms(BBTermProcessor tp, final Element e) throws ParserException {
 
     String fieldName = DOMUtils.getAttributeWithInheritanceOrFail(e, "fieldName");
 

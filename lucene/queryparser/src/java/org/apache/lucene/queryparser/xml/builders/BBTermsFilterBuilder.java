@@ -7,7 +7,7 @@ import org.apache.lucene.search.MatchAllDocsFilter;
 import org.apache.lucene.queries.TermFilter;
 import org.apache.lucene.queries.TermsFilter;
 import org.apache.lucene.queryparser.xml.FilterBuilder;
-import org.apache.lucene.queryparser.xml.TermBuilder;
+import org.apache.lucene.queryparser.xml.BBTermBuilder;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.w3c.dom.Element;
 
@@ -36,13 +36,13 @@ import java.util.List;
  */
 public class BBTermsFilterBuilder implements FilterBuilder {
 
-  private final TermBuilder termBuilder;
+  private final BBTermBuilder termBuilder;
 
-  public BBTermsFilterBuilder(TermBuilder termBuilder) {
+  public BBTermsFilterBuilder(BBTermBuilder termBuilder) {
     this.termBuilder = termBuilder;
   }
 
-  private class TermsFilterProcessor implements TermBuilder.TermProcessor {
+  private class TermsFilterProcessor implements BBTermBuilder.BBTermProcessor {
     public List<Term> terms = new ArrayList<Term>();
     public void process(Term t) {
       terms.add(t);

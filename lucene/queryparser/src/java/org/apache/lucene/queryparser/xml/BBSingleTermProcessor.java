@@ -4,7 +4,6 @@
 package org.apache.lucene.queryparser.xml;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.xml.TermBuilder.TermProcessor;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -26,7 +25,7 @@ import org.apache.lucene.queryparser.xml.TermBuilder.TermProcessor;
 /**
  * This class will ensure single Term is extracted for a given field value 
  */
-public class SingleTermProcessor implements TermProcessor {
+public class BBSingleTermProcessor implements BBTermBuilder.BBTermProcessor {
   private Term term = null;
   private boolean multipleTerms = false;
   
