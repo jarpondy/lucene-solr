@@ -38,7 +38,8 @@ public class TestCoreParserGenericText extends TestCoreParser {
       super(defaultField, analyzer);
 
       // the query builder to be tested
-      queryFactory.addBuilder("GenericTextQuery", new GenericTextQueryBuilder(analyzer));
+      queryFactory.addBuilder("GenericTextQuery", new GenericTextQueryBuilder(
+        defaultField, analyzer, null, queryFactory));
     }
   }
 

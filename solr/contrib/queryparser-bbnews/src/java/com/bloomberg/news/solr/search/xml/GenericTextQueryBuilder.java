@@ -19,6 +19,8 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.IOUtils;
+import org.apache.solr.request.SolrQueryRequest;
+import org.apache.solr.search.SolrQueryBuilder;
 import org.w3c.dom.Element;
 
 /*
@@ -43,7 +45,7 @@ import org.w3c.dom.Element;
  * Builds a TermQuery If there is only one resulting term after analyzer being applied
  * Builds a PhraseQuery if there are multiple terms.
  */
-public class GenericTextQueryBuilder implements QueryBuilder {
+public class GenericTextQueryBuilder extends SolrQueryBuilder {
 
   protected Analyzer analyzer;
 
@@ -51,7 +53,9 @@ public class GenericTextQueryBuilder implements QueryBuilder {
   private static final char WILDCARD_CHAR = '?';
   private static final char WILDCARD_ESCAPE = '\\';
 
-  public GenericTextQueryBuilder(Analyzer analyzer) {
+  public GenericTextQueryBuilder(String defaultField, Analyzer analyzer,
+                                 SolrQueryRequest req, QueryBuilder queryFactory) {
+    super(defaultField, analyzer, req, queryFactory);
     this.analyzer = analyzer;
   }
 
