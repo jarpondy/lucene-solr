@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml;
+package com.bloomberg.news.solr.search.xml;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -19,7 +19,9 @@ package org.apache.lucene.queryparser.xml;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.xml.builders.NearQueryBuilder;
+import org.apache.lucene.queryparser.xml.CoreParser;
+import org.apache.lucene.queryparser.xml.ParserException;
+import org.apache.lucene.queryparser.xml.TestCoreParser;
 import org.apache.lucene.queryparser.xml.builders.WildcardNearQueryBuilder;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -33,9 +35,9 @@ import org.apache.lucene.search.intervals.FieldedBooleanQuery;
 import org.apache.lucene.search.intervals.UnorderedNearQuery;
 
 import java.io.IOException;
+import java.io.InputStream;
 
-@Deprecated // in favour of com.bloomberg.news.*.TestCoreParserNear
-public class TestBBCoreParserNear extends TestCoreParser {
+public class TestCoreParserNear extends TestCoreParser {
 
   private class CoreParserNearQuery extends CoreParser {
     CoreParserNearQuery(String defaultField, Analyzer analyzer) {
@@ -56,8 +58,19 @@ public class TestBBCoreParserNear extends TestCoreParser {
     return coreParser;
   }
 
+  @Override
+  protected Query parse(String xmlFileName) throws ParserException, IOException {
+    try (InputStream xmlStream = TestCoreParserNear.class.getResourceAsStream(xmlFileName)) {
+      if (xmlStream == null) {
+        return super.parse(xmlFileName);
+      }
+      Query result = coreParser().parse(xmlStream);
+      return result;
+    }
+  }
+
   public void testNearBooleanNear() throws IOException, ParserException {
-    final Query q = parse("BBNearBooleanNear.xml");
+    final Query q = parse("NearBooleanNear.xml");
     dumpResults("testNearBooleanNear", q, 5);
   }
 
@@ -66,7 +79,7 @@ public class TestBBCoreParserNear extends TestCoreParser {
     BooleanQuery bq = new BooleanQuery();
     bq.add(new TermQuery(new Term("contents", "iranian")), BooleanClause.Occur.SHOULD);
     bq.add(new TermQuery(new Term("contents", "north")), BooleanClause.Occur.SHOULD);
-    
+
     FieldedQuery[] subQueries = new FieldedQuery[2];
     subQueries[0] = FieldedBooleanQuery.toFieldedQuery(bq);
     subQueries[1] = FieldedBooleanQuery.toFieldedQuery(new TermQuery(new Term("contents", "akbar")));

@@ -16,6 +16,7 @@
  limitations under the License.
 -->
 <!-- federal N/3 (credit OR (taxes N/1 income)) -->
+<!-- Deprecated in favor of com.bloomberg.news equivalent -->
 <NearQuery fieldName="contents" slop="4" inOrder="false">
   <WildcardNearQuery>bank</WildcardNearQuery>
   <BooleanQuery disableCoord="true"> "

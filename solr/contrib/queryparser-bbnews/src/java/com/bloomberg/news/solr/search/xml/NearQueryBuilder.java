@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml.builders;
+package com.bloomberg.news.solr.search.xml;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,6 @@ import org.apache.lucene.search.intervals.UnorderedNearQuery;
  * limitations under the License.
  */
 
-@Deprecated // in favour of com.bloomberg.news.solr.search.xml.NearQueryBuilder
 public class NearQueryBuilder implements QueryBuilder{
   final private QueryBuilder factory;
 
@@ -42,12 +41,12 @@ public class NearQueryBuilder implements QueryBuilder{
     super();
     this.factory = factory;
   }
-  
+
   @Override
   public Query getQuery(Element e) throws ParserException {
     int slop = DOMUtils.getAttribute(e, "slop", 0);
     boolean inOrder = DOMUtils.getAttribute(e, "inOrder", false);
-    
+
     List<Query> subQueriesList = new ArrayList<>();
     for (Node kid = e.getFirstChild(); kid != null; kid = kid.getNextSibling()) {
       if (kid.getNodeType() == Node.ELEMENT_NODE) {
@@ -56,7 +55,7 @@ public class NearQueryBuilder implements QueryBuilder{
           FieldedQuery fq = FieldedBooleanQuery.toFieldedQuery(factory.getQuery((Element) kid));
           subQueriesList.add(fq);
         }
-        
+
       }
     }
     switch (subQueriesList.size())
@@ -73,5 +72,5 @@ public class NearQueryBuilder implements QueryBuilder{
             return new UnorderedNearQuery(slop, subQueries);
     }
   }
-  
+
 }

@@ -36,6 +36,7 @@ import org.apache.lucene.search.spans.SpanQuery;
  * limitations under the License.
  */
 
+@Deprecated // in favour of com.bloomberg.news.solr.search.xml.NearFirstQueryBuilder
 public class NearFirstQueryBuilder implements QueryBuilder{
   final private QueryBuilder factory;
 

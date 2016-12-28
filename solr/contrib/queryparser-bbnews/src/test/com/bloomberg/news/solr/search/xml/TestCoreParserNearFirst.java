@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml;
+package com.bloomberg.news.solr.search.xml;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -19,7 +19,9 @@ package org.apache.lucene.queryparser.xml;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.xml.builders.NearFirstQueryBuilder;
+import org.apache.lucene.queryparser.xml.CoreParser;
+import org.apache.lucene.queryparser.xml.ParserException;
+import org.apache.lucene.queryparser.xml.TestCoreParser;
 import org.apache.lucene.queryparser.xml.builders.WildcardNearQueryBuilder;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -30,9 +32,9 @@ import org.apache.lucene.search.intervals.FieldedBooleanQuery;
 import org.apache.lucene.search.intervals.UnorderedNearQuery;
 
 import java.io.IOException;
+import java.io.InputStream;
 
-@Deprecated // in favour of com.bloomberg.news.*.TestCoreParserNearFirst
-public class TestBBCoreParserNearFirst extends TestCoreParser {
+public class TestCoreParserNearFirst extends TestCoreParser {
 
   private class CoreParserNearFirstQuery extends CoreParser {
     CoreParserNearFirstQuery(String defaultField, Analyzer analyzer) {
@@ -53,8 +55,19 @@ public class TestBBCoreParserNearFirst extends TestCoreParser {
     return coreParser;
   }
 
+  @Override
+  protected Query parse(String xmlFileName) throws ParserException, IOException {
+    try (InputStream xmlStream = TestCoreParserNearFirst.class.getResourceAsStream(xmlFileName)) {
+      if (xmlStream == null) {
+        return super.parse(xmlFileName);
+      }
+      Query result = coreParser().parse(xmlStream);
+      return result;
+    }
+  }
+
   public void testNearFirstBooleanMustXml() throws IOException, ParserException {
-    final Query q = parse("BBNearFirstBooleanMust.xml");
+    final Query q = parse("NearFirstBooleanMust.xml");
     dumpResults("testNearFirstBooleanMustXml", q, 50);
   }
 

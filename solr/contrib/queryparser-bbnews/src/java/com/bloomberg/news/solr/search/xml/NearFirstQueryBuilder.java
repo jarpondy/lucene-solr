@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml.builders;
+package com.bloomberg.news.solr.search.xml;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,8 @@ import org.apache.lucene.search.intervals.IntervalFilterQuery;
 import org.apache.lucene.search.intervals.OrderedNearQuery;
 import org.apache.lucene.search.intervals.RangeIntervalFilter;
 import org.apache.lucene.search.intervals.UnorderedNearQuery;
+import org.apache.lucene.search.spans.SpanFirstQuery;
+import org.apache.lucene.search.spans.SpanQuery;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -34,44 +36,23 @@ import org.apache.lucene.search.intervals.UnorderedNearQuery;
  * limitations under the License.
  */
 
-@Deprecated // in favour of com.bloomberg.news.solr.search.xml.NearQueryBuilder
-public class NearQueryBuilder implements QueryBuilder{
+public class NearFirstQueryBuilder implements QueryBuilder{
   final private QueryBuilder factory;
 
-  public NearQueryBuilder(QueryBuilder factory) {
+  public NearFirstQueryBuilder(QueryBuilder factory) {
     super();
     this.factory = factory;
   }
-  
+
   @Override
   public Query getQuery(Element e) throws ParserException {
-    int slop = DOMUtils.getAttribute(e, "slop", 0);
-    boolean inOrder = DOMUtils.getAttribute(e, "inOrder", false);
-    
-    List<Query> subQueriesList = new ArrayList<>();
-    for (Node kid = e.getFirstChild(); kid != null; kid = kid.getNextSibling()) {
-      if (kid.getNodeType() == Node.ELEMENT_NODE) {
-        Query q = factory.getQuery((Element) kid);
-        if (!(q instanceof MatchAllDocsQuery)) {
-          FieldedQuery fq = FieldedBooleanQuery.toFieldedQuery(factory.getQuery((Element) kid));
-          subQueriesList.add(fq);
-        }
-        
-      }
-    }
-    switch (subQueriesList.size())
-    {
-      case 0:
-        return new MatchAllDocsQuery();
-      case 1:
-        return subQueriesList.get(0);
-        default:
-          FieldedQuery[] subQueries = subQueriesList.toArray(new FieldedQuery[subQueriesList.size()]);
-          if (inOrder)
-            return new OrderedNearQuery(slop, subQueries);
-          else
-            return new UnorderedNearQuery(slop, subQueries);
-    }
+    int end = DOMUtils.getAttribute(e, "end", 1);
+    Element child = DOMUtils.getFirstChildElement(e);
+    Query q = factory.getQuery((Element) child);
+    if (q instanceof MatchAllDocsQuery)
+      return q;
+    FieldedQuery fq = FieldedBooleanQuery.toFieldedQuery(q);
+    return new IntervalFilterQuery( fq, new RangeIntervalFilter(0, end) );
   }
-  
+
 }

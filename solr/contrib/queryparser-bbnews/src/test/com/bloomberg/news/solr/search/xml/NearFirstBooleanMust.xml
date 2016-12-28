@@ -14,8 +14,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
- -->
-<!-- Deprecated in favor of com.bloomberg.news equivalent -->
+-->
 <NearFirstQuery fieldName="contents" end="5">
   <BooleanQuery disableCoord="true">
     <Clause occurs="must"><WildcardNearQuery>ban*</WildcardNearQuery></Clause>
