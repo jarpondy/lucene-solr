@@ -41,7 +41,8 @@ public class TestCoreParserNearFirst extends TestCoreParser {
       super(defaultField, analyzer);
 
       // the query builder to be tested
-      queryFactory.addBuilder("NearFirstQuery", new NearFirstQueryBuilder(queryFactory));
+      queryFactory.addBuilder("NearFirstQuery", new NearFirstQueryBuilder(
+        defaultField, analyzer, null, queryFactory));
     }
   }
 

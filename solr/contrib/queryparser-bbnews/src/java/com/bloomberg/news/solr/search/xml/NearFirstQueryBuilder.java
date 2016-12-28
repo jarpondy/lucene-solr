@@ -3,6 +3,7 @@ package com.bloomberg.news.solr.search.xml;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.xml.DOMUtils;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
@@ -18,6 +19,8 @@ import org.apache.lucene.search.intervals.RangeIntervalFilter;
 import org.apache.lucene.search.intervals.UnorderedNearQuery;
 import org.apache.lucene.search.spans.SpanFirstQuery;
 import org.apache.lucene.search.spans.SpanQuery;
+import org.apache.solr.request.SolrQueryRequest;
+import org.apache.solr.search.SolrQueryBuilder;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -36,19 +39,17 @@ import org.apache.lucene.search.spans.SpanQuery;
  * limitations under the License.
  */
 
-public class NearFirstQueryBuilder implements QueryBuilder{
-  final private QueryBuilder factory;
-
-  public NearFirstQueryBuilder(QueryBuilder factory) {
-    super();
-    this.factory = factory;
+public class NearFirstQueryBuilder extends SolrQueryBuilder{
+  public NearFirstQueryBuilder(String defaultField, Analyzer analyzer,
+                               SolrQueryRequest req, QueryBuilder queryFactory) {
+    super(defaultField, analyzer, req, queryFactory);
   }
 
   @Override
   public Query getQuery(Element e) throws ParserException {
     int end = DOMUtils.getAttribute(e, "end", 1);
     Element child = DOMUtils.getFirstChildElement(e);
-    Query q = factory.getQuery((Element) child);
+    Query q = queryFactory.getQuery((Element) child);
     if (q instanceof MatchAllDocsQuery)
       return q;
     FieldedQuery fq = FieldedBooleanQuery.toFieldedQuery(q);
