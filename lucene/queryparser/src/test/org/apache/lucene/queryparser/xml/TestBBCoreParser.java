@@ -26,7 +26,6 @@ import org.apache.lucene.queries.FilterClause;
 import org.apache.lucene.queries.TermFilter;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.DisjunctionMaxQuery;
 import org.apache.lucene.search.FieldedQuery;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.MatchAllDocsFilter;
@@ -164,22 +163,6 @@ public class TestBBCoreParser extends TestCoreParser {
   public void testTermsFilterQueryWithOnlyStopword() throws Exception {
     Query q = parse("TermsFilterOnlyStopwords.xml");
     dumpResults("TermsFilter with all stop words", q, 5);
-  }
-  
-  public void testDisjunctionMaxQueryTripleWildcardNearQuery() throws Exception {
-    Query q = parse("BBDisjunctionMaxQueryTripleWildcardNearQuery.xml");
-    int size = ((DisjunctionMaxQuery)q).getDisjuncts().size();
-    assertTrue("Expecting 2 clauses, but resulted in " + size, size == 2);
-    DisjunctionMaxQuery dm = (DisjunctionMaxQuery)q;
-    for(Query q1 : dm.getDisjuncts())
-    {
-      assertFalse("Not expecting MatchAllDocsQuery ",q1 instanceof MatchAllDocsQuery);
-    }
-  }
-
-  public void testDisjunctionMaxQueryMatchAllDocsQuery() throws Exception {
-    final Query q = parse("BBDisjunctionMaxQueryMatchAllDocsQuery.xml");
-    assertTrue("Expecting a MatchAllDocsQuery, but resulted in " + q.getClass(), q instanceof MatchAllDocsQuery);
   }
 
 }
