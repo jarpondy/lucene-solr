@@ -17,11 +17,33 @@ package org.apache.lucene.queryparser.xml;
  * limitations under the License.
  */
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.queryparser.xml.builders.BBDisjunctionMaxQueryBuilder;
+import org.apache.lucene.queryparser.xml.builders.WildcardNearQueryBuilder;
 import org.apache.lucene.search.DisjunctionMaxQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 
-public class TestBBCoreParserDisjunctionMaxQuery extends TestBBCoreParser {
+public class TestBBCoreParserDisjunctionMaxQuery extends TestCoreParser {
+
+  private class CoreParserDisjunctionMaxQuery extends CoreParser {
+    CoreParserDisjunctionMaxQuery(String defaultField, Analyzer analyzer) {
+      super(defaultField, analyzer);
+
+      // the query builder to be tested
+      queryFactory.addBuilder("DisjunctionMaxQuery", new BBDisjunctionMaxQueryBuilder(queryFactory));
+    }
+  }
+
+  @Override
+  protected CoreParser newCoreParser(String defaultField, Analyzer analyzer) {
+    final CoreParser coreParser = new CoreParserDisjunctionMaxQuery(defaultField, analyzer);
+
+    // some additional builders to help
+    coreParser.addQueryBuilder("WildcardNearQuery", new WildcardNearQueryBuilder(analyzer));
+
+    return coreParser;
+  }
 
   public void testDisjunctionMaxQueryTripleWildcardNearQuery() throws Exception {
     Query q = parse("BBDisjunctionMaxQueryTripleWildcardNearQuery.xml");
