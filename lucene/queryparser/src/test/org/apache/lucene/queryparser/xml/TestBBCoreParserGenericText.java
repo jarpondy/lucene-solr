@@ -17,7 +17,9 @@ package org.apache.lucene.queryparser.xml;
  * limitations under the License.
  */
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.xml.builders.GenericTextQueryBuilder;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.PhraseQuery;
@@ -26,8 +28,22 @@ import org.apache.lucene.search.TermQuery;
 
 import java.io.IOException;
 
-public class TestBBCoreParserGenericText extends TestBBCoreParser {
+public class TestBBCoreParserGenericText extends TestCoreParser {
 
+  private class CoreParserGenericText extends CoreParser {
+    CoreParserGenericText(String defaultField, Analyzer analyzer) {
+      super(defaultField, analyzer);
+
+      // the query builder to be tested
+      queryFactory.addBuilder("GenericTextQuery", new GenericTextQueryBuilder(analyzer));
+    }
+  }
+
+  @Override
+  protected CoreParser newCoreParser(String defaultField, Analyzer analyzer) {
+    return new CoreParserGenericText(defaultField, analyzer);
+  }
+  
   public void testGenericTextQueryXML() throws Exception {
     Query q = parse("BBGenericTextQuery.xml");
     assertTrue("Expecting a PhraseQuery, but resulted in " + q.getClass(), q instanceof PhraseQuery);
