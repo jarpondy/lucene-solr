@@ -167,7 +167,7 @@ public class TestBBCoreParser extends TestCoreParser {
   }
   
   public void testDisjunctionMaxQueryTripleWildcardNearQuery() throws Exception {
-    Query q = parse("DisjunctionMaxQueryTripleWildcardNearQuery.xml");
+    Query q = parse("BBDisjunctionMaxQueryTripleWildcardNearQuery.xml");
     int size = ((DisjunctionMaxQuery)q).getDisjuncts().size();
     assertTrue("Expecting 2 clauses, but resulted in " + size, size == 2);
     DisjunctionMaxQuery dm = (DisjunctionMaxQuery)q;
@@ -178,7 +178,7 @@ public class TestBBCoreParser extends TestCoreParser {
   }
 
   public void testDisjunctionMaxQueryMatchAllDocsQuery() throws Exception {
-    final Query q = parse("DisjunctionMaxQueryMatchAllDocsQuery.xml");
+    final Query q = parse("BBDisjunctionMaxQueryMatchAllDocsQuery.xml");
     assertTrue("Expecting a MatchAllDocsQuery, but resulted in " + q.getClass(), q instanceof MatchAllDocsQuery);
   }
 
