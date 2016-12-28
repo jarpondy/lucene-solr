@@ -26,7 +26,7 @@ import org.apache.lucene.queryparser.xml.builders.*;
  */
 public class BBCoreParser extends CoreParser {
 
-  protected TermBuilder termBuilder;
+  final private TermFreqBuildersWrapper tfBuildersWrapper;
 
   /**
    * Construct an XML parser that uses a single instance QueryParser for handling
@@ -52,28 +52,7 @@ public class BBCoreParser extends CoreParser {
 
     queryFactory.addBuilder("DisjunctionMaxQuery", new BBDisjunctionMaxQueryBuilder(queryFactory));
 
-    this.termBuilder = new TermBuilder(analyzer);
-
-    {
-      QueryBuilder termQueryBuilder = new BBTermQueryBuilder(termBuilder);
-      queryFactory.addBuilder("TermQuery", termQueryBuilder);
-      queryFactory.addBuilder("TermFreqQuery", new TermFreqBuilder(null /* termFilterBuilder */, termQueryBuilder));
-    }
-    {
-      QueryBuilder termsQueryBuilder = new BBTermsQueryBuilder(termBuilder);
-      queryFactory.addBuilder("TermsQuery", termsQueryBuilder);
-      queryFactory.addBuilder("TermsFreqQuery", new TermFreqBuilder(null /* termsFilterBuilder */, termsQueryBuilder));
-    }
-    {
-      FilterBuilder termFilterBuilder = new BBTermFilterBuilder(termBuilder);
-      filterFactory.addBuilder("TermFilter", termFilterBuilder);
-      filterFactory.addBuilder("TermFreqFilter", new TermFreqBuilder(termFilterBuilder, null /* termQueryBuilder */));
-    }
-    {
-      FilterBuilder termsFilterBuilder = new BBTermsFilterBuilder(termBuilder);
-      filterFactory.addBuilder("TermsFilter", termsFilterBuilder);
-      filterFactory.addBuilder("TermsFreqFilter", new TermFreqBuilder(termsFilterBuilder, null /* termsQueryBuilder */));
-    }
+    this.tfBuildersWrapper = new TermFreqBuildersWrapper(defaultField, analyzer, this);
     
     queryFactory.addBuilder("BooleanQuery", new BBBooleanQueryBuilder(queryFactory));
     filterFactory.addBuilder("BooleanFilter", new BBBooleanFilterBuilder(filterFactory));
