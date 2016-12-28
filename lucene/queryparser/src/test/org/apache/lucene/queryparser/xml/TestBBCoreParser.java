@@ -96,12 +96,12 @@ public class TestBBCoreParser extends TestCoreParser {
   }
 
   public void testTermQueryStopwordXML() throws IOException {
-    parseShouldFail("TermQueryStopwords.xml",
+    parseShouldFail("BBTermQueryStopwords.xml",
         "Empty term found. field:contents value:to a. Check the query analyzer configured on this field.");
   }
   
   public void testTermQueryMultipleTermsXML() throws IOException {
-    parseShouldFail("TermQueryMultipleTerms.xml",
+    parseShouldFail("BBTermQueryMultipleTerms.xml",
         "Multiple terms found. field:contents value:sumitomo come home. Check the query analyzer configured on this field.");
   }
 
@@ -112,12 +112,12 @@ public class TestBBCoreParser extends TestCoreParser {
   }
 
   public void testTermsQueryWithTermElementXML() throws ParserException, IOException {
-    Query q = parse("TermsQueryWithTermElement.xml");
+    Query q = parse("BBTermsQueryWithTermElement.xml");
     dumpResults("TermsQuery", q, 5);
   }
   
   public void testTermsQueryWithSingleTerm() throws ParserException, IOException {
-    Query q = parse("TermsQuerySingleTerm.xml");
+    Query q = parse("BBTermsQuerySingleTerm.xml");
     assertTrue("Expecting a TermQuery, but resulted in " + q.getClass(), q instanceof TermQuery);
     dumpResults("TermsQueryWithSingleTerm", q, 5);
   }
@@ -125,20 +125,20 @@ public class TestBBCoreParser extends TestCoreParser {
   
   //term appears like single term but results in two terms when it runs through standard analyzer
   public void testTermsQueryWithStopwords() throws ParserException, IOException {
-    Query q = parse("TermsQueryStopwords.xml");
+    Query q = parse("BBTermsQueryStopwords.xml");
     if (analyzer() instanceof StandardAnalyzer)
       assertTrue("Expecting a BooleanQuery, but resulted in " + q.getClass(), q instanceof BooleanQuery);
     dumpResults("TermsQueryWithStopwords", q, 5);
     }
   
   public void testTermsQueryEmpty() throws ParserException, IOException {
-    Query q = parse("TermsQueryEmpty.xml");
+    Query q = parse("BBTermsQueryEmpty.xml");
     assertTrue("Expecting a MatchAllDocsQuery, but resulted in " + q.getClass(), q instanceof MatchAllDocsQuery);
     dumpResults("Empty TermsQuery", q, 5);
   }
   
   public void testTermsQueryWithOnlyStopwords() throws ParserException, IOException {
-    Query q = parse("TermsQueryOnlyStopwords.xml");
+    Query q = parse("BBTermsQueryOnlyStopwords.xml");
     if (analyzer() instanceof StandardAnalyzer)
       assertTrue("Expecting a MatchAllDocsQuery, but resulted in " + q.getClass(), q instanceof MatchAllDocsQuery);
     dumpResults("TermsQuery with only stopwords", q, 5);
