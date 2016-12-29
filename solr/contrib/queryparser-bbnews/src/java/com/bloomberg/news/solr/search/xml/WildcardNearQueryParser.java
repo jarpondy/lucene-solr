@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml.builders;
+package com.bloomberg.news.solr.search.xml;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +44,6 @@ import org.apache.lucene.util.IOUtils;
  * Text phrases can be thrown into this builder to get tokenized to form OrderedNearQuery of sub queries of individual tokens.
  * Currently this can result in WildcardQuery,PrefixQuery and TermQuery as its sub queries. */
 
-@Deprecated // in favour of com.bloomberg.news.*.WildcardNearQueryParser
 public class WildcardNearQueryParser {
 
   protected Analyzer analyzer;

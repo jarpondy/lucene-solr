@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml;
+package com.bloomberg.news.solr.search.xml;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -31,7 +31,6 @@ import org.apache.lucene.analysis.ja.JapaneseNumberFilter;
 import org.apache.lucene.analysis.ja.JapaneseTokenizer;
 import org.apache.lucene.analysis.standard.BBFinancialStandardTokenizer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.xml.builders.WildcardNearQueryParser;
 import org.apache.lucene.search.FieldedQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.MultiTermQuery;
@@ -46,8 +45,7 @@ import org.junit.BeforeClass;
 
 import java.io.Reader;
 
-@Deprecated // in favour of com.bloomberg.news.*.TestWildParser
-public class TestBBWildParser extends LuceneTestCase {
+public class TestWildParser extends LuceneTestCase {
   private final class TestAnalyzer extends Analyzer {
     // This is an approximation of an Analyzer that is actually built in Solr
     // using a config file.
