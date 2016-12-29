@@ -18,9 +18,6 @@
 package com.bloomberg.news.solr.search.xml;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryparser.xml.builders.GenericTextQueryBuilder;
-import org.apache.lucene.queryparser.xml.builders.NearQueryBuilder;
-import org.apache.lucene.queryparser.xml.builders.WildcardNearQueryBuilder;
 import org.apache.lucene.queryparser.xml.CoreParser;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.TestCoreParser;
@@ -46,16 +43,17 @@ public class TestCoreParserBoolean extends TestCoreParser {
 
       // some additional builders to help
       // (here only since requiring access to queryFactory)
-      queryFactory.addBuilder("NearQuery", new NearQueryBuilder(queryFactory));
+      queryFactory.addBuilder("NearQuery", new NearQueryBuilder(
+        defaultField, analyzer, null, queryFactory));
+      queryFactory.addBuilder("GenericTextQuery", new GenericTextQueryBuilder(
+        defaultField, analyzer, null, queryFactory));
+      queryFactory.addBuilder("WildcardNearQuery", new WildcardNearQueryBuilder(
+        defaultField, analyzer, null, queryFactory));
     }
   }
 
   protected CoreParser newCoreParser(String defaultField, Analyzer analyzer) {
     final CoreParser coreParser = new CoreParserBooleanQuery(defaultField, analyzer);
-
-    // some additional builders to help
-    coreParser.addQueryBuilder("GenericTextQuery", new GenericTextQueryBuilder(analyzer));
-    coreParser.addQueryBuilder("WildcardNearQuery", new WildcardNearQueryBuilder(analyzer));
 
     return coreParser;
   }

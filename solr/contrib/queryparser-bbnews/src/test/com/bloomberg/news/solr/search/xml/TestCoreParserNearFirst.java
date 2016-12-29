@@ -22,7 +22,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.xml.CoreParser;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.TestCoreParser;
-import org.apache.lucene.queryparser.xml.builders.WildcardNearQueryBuilder;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.FieldedQuery;
@@ -43,15 +42,17 @@ public class TestCoreParserNearFirst extends TestCoreParser {
       // the query builder to be tested
       queryFactory.addBuilder("NearFirstQuery", new NearFirstQueryBuilder(
         defaultField, analyzer, null, queryFactory));
+
+      // some additional builders to help
+      // (here only since requiring access to queryFactory)
+      queryFactory.addBuilder("WildcardNearQuery", new WildcardNearQueryBuilder(
+        defaultField, analyzer, null, queryFactory));
     }
   }
 
   @Override
   protected CoreParser newCoreParser(String defaultField, Analyzer analyzer) {
     final CoreParser coreParser = new CoreParserNearFirstQuery(defaultField, analyzer);
-
-    // some additional builders to help
-    coreParser.addQueryBuilder("WildcardNearQuery", new WildcardNearQueryBuilder(analyzer));
 
     return coreParser;
   }

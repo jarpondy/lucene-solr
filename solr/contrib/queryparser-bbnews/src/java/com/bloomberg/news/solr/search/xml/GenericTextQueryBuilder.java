@@ -12,7 +12,6 @@ import org.apache.lucene.queries.function.valuesource.ConstValueSource;
 import org.apache.lucene.queryparser.xml.DOMUtils;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
-import org.apache.lucene.queryparser.xml.builders.WildcardNearQueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
