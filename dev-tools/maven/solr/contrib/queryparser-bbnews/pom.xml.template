@@ -79,7 +79,7 @@
     <testSourceDirectory>${module-path}/src/test</testSourceDirectory>
     <testResources>
       <testResource>
-        <directory>${module-path}/src/test-files</directory>
+        <directory>${module-path}/src/test</directory>
       </testResource>
       <testResource>
         <directory>${top-level}/dev-tools/maven/solr</directory>
