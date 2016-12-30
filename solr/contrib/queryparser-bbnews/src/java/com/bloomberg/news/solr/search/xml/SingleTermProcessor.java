@@ -1,9 +1,10 @@
 /**
  * 
  */
-package org.apache.lucene.queryparser.xml;
+package com.bloomberg.news.solr.search.xml;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.xml.ParserException;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -25,8 +26,7 @@ import org.apache.lucene.index.Term;
 /**
  * This class will ensure single Term is extracted for a given field value 
  */
-@Deprecated // in favour of com.bloomberg.news equivalent
-public class BBSingleTermProcessor implements BBTermBuilder.BBTermProcessor {
+public class SingleTermProcessor implements TermBuilder.TermProcessor {
   private Term term = null;
   private boolean multipleTerms = false;
   

@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml.builders;
+package com.bloomberg.news.solr.search.xml;
 
 import org.apache.lucene.queries.TermFilter;
 import org.apache.lucene.queries.TermFreqFilter;
@@ -34,7 +34,6 @@ import org.w3c.dom.Element;
  * limitations under the License.
  */
 
-@Deprecated // in favour of com.bloomberg.news equivalent
 public class TermFreqBuilder implements QueryBuilder, FilterBuilder {
 
   private final FilterBuilder filterBuilder;

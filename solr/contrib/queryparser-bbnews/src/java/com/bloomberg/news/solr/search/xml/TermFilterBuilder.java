@@ -1,10 +1,8 @@
-package org.apache.lucene.queryparser.xml.builders;
+package com.bloomberg.news.solr.search.xml;
 
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.queries.TermFilter;
 import org.apache.lucene.queryparser.xml.DOMUtils;
-import org.apache.lucene.queryparser.xml.BBSingleTermProcessor;
-import org.apache.lucene.queryparser.xml.BBTermBuilder;
 import org.apache.lucene.queryparser.xml.FilterBuilder;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.w3c.dom.Element;
@@ -29,19 +27,18 @@ import org.w3c.dom.Element;
 /**
  * Builder for {@link TermFilter}
  */
-@Deprecated // in favour of com.bloomberg.news equivalent
-public class BBTermFilterBuilder implements FilterBuilder {
+public class TermFilterBuilder implements FilterBuilder {
 
-  protected final BBTermBuilder termBuilder;
+  protected final TermBuilder termBuilder;
 
-  public BBTermFilterBuilder(BBTermBuilder termBuilder) {
+  public TermFilterBuilder(TermBuilder termBuilder) {
     this.termBuilder = termBuilder;
   }
 
   @Override
   public Filter getFilter(final Element e) throws ParserException {
 
-    BBSingleTermProcessor tp = new BBSingleTermProcessor();
+    SingleTermProcessor tp = new SingleTermProcessor();
     String field = DOMUtils.getAttributeWithInheritanceOrFail(e, "fieldName");
     //extract the value and fail if there is no value. 
     //This is a query builder for one and only one term

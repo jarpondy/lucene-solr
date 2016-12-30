@@ -1,11 +1,10 @@
-package org.apache.lucene.queryparser.xml.builders;
+package com.bloomberg.news.solr.search.xml;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.xml.CoreParser;
 import org.apache.lucene.queryparser.xml.FilterBuilder;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
-import org.apache.lucene.queryparser.xml.BBTermBuilder;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.Element;
 
@@ -29,7 +28,6 @@ import org.w3c.dom.Element;
 /**
  * Utility class to facilitate configuration of Term[s][Freq](Query|Filter) builders.
  */
-@Deprecated // in favour of com.bloomberg.news equivalent
 public class TermFreqBuildersWrapper implements QueryBuilder {
 
   public TermFreqBuildersWrapper(String defaultField, Analyzer analyzer,
@@ -37,25 +35,25 @@ public class TermFreqBuildersWrapper implements QueryBuilder {
 
     final CoreParser coreParser = (CoreParser)queryFactory;
 
-    final BBTermBuilder termBuilder = new BBTermBuilder(analyzer);
+    final TermBuilder termBuilder = new TermBuilder(analyzer);
 
     {
-      QueryBuilder termQueryBuilder = new BBTermQueryBuilder(termBuilder);
+      QueryBuilder termQueryBuilder = new TermQueryBuilder(termBuilder);
       coreParser.addQueryBuilder("TermQuery", termQueryBuilder);
       coreParser.addQueryBuilder("TermFreqQuery", new TermFreqBuilder(null /* termFilterBuilder */, termQueryBuilder));
     }
     {
-      QueryBuilder termsQueryBuilder = new BBTermsQueryBuilder(termBuilder);
+      QueryBuilder termsQueryBuilder = new TermsQueryBuilder(termBuilder);
       coreParser.addQueryBuilder("TermsQuery", termsQueryBuilder);
       coreParser.addQueryBuilder("TermsFreqQuery", new TermFreqBuilder(null /* termsFilterBuilder */, termsQueryBuilder));
     }
     {
-      FilterBuilder termFilterBuilder = new BBTermFilterBuilder(termBuilder);
+      FilterBuilder termFilterBuilder = new TermFilterBuilder(termBuilder);
       coreParser.addFilterBuilder("TermFilter", termFilterBuilder);
       coreParser.addFilterBuilder("TermFreqFilter", new TermFreqBuilder(termFilterBuilder, null /* termQueryBuilder */));
     }
     {
-      FilterBuilder termsFilterBuilder = new BBTermsFilterBuilder(termBuilder);
+      FilterBuilder termsFilterBuilder = new TermsFilterBuilder(termBuilder);
       coreParser.addFilterBuilder("TermsFilter", termsFilterBuilder);
       coreParser.addFilterBuilder("TermsFreqFilter", new TermFreqBuilder(termsFilterBuilder, null /* termsQueryBuilder */));
     }

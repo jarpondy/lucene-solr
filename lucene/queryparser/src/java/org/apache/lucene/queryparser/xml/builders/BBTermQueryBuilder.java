@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
 /**
  * Builder for {@link TermQuery}
  */
+@Deprecated // in favour of com.bloomberg.news equivalent
 public class BBTermQueryBuilder implements QueryBuilder {
 
   protected final BBTermBuilder termBuilder;

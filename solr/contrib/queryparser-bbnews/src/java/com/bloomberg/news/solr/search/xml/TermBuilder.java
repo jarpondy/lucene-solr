@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml;
+package com.bloomberg.news.solr.search.xml;
 
 import java.io.IOException;
 
@@ -6,6 +6,8 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.TermToBytesRefAttribute;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.xml.DOMUtils;
+import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.IOUtils;
 import org.w3c.dom.Element;
@@ -32,23 +34,22 @@ import org.w3c.dom.NodeList;
  * Implemented by objects that produce Lucene Term objects from XML streams. Implementations are
  * expected to be thread-safe so that they can be used to simultaneously parse multiple XML documents.
  */
-@Deprecated // in favour of com.bloomberg.news equivalent
-public class BBTermBuilder {
+public class TermBuilder {
 
   private final Analyzer analyzer;
 
-  public BBTermBuilder(Analyzer analyzer) {
+  public TermBuilder(Analyzer analyzer) {
     this.analyzer = analyzer;
   }
 
-  public interface BBTermProcessor {
+  public interface TermProcessor {
     //callback for each term found during processing the field value
     public void process(Term t);
   };  
 
   //use this if you already have a field name and value and would like to apply analyzer and get Term/Terms.
   //TermProcess.process callback will be called for each term found
-  public void extractTerms(BBTermProcessor tp, String field, String value) throws ParserException {
+  public void extractTerms(TermProcessor tp, String field, String value) throws ParserException {
     if (null == analyzer) {
       tp.process(new Term(field, value));
     } else {
@@ -74,7 +75,7 @@ public class BBTermBuilder {
   }
 
   //Handles nested Term TermQueries and/or not throws any exceptions on empty elements being found.
-  public void extractTerms(BBTermProcessor tp, final Element e) throws ParserException {
+  public void extractTerms(TermProcessor tp, final Element e) throws ParserException {
 
     String fieldName = DOMUtils.getAttributeWithInheritanceOrFail(e, "fieldName");
 

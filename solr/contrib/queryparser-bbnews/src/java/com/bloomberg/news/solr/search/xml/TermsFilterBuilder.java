@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml.builders;
+package com.bloomberg.news.solr.search.xml;
 
 
 import org.apache.lucene.index.Term;
@@ -7,7 +7,6 @@ import org.apache.lucene.search.MatchAllDocsFilter;
 import org.apache.lucene.queries.TermFilter;
 import org.apache.lucene.queries.TermsFilter;
 import org.apache.lucene.queryparser.xml.FilterBuilder;
-import org.apache.lucene.queryparser.xml.BBTermBuilder;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.w3c.dom.Element;
 
@@ -34,16 +33,15 @@ import java.util.List;
 /**
  * Builder for {@link TermsFilter}
  */
-@Deprecated // in favour of com.bloomberg.news equivalent
-public class BBTermsFilterBuilder implements FilterBuilder {
+public class TermsFilterBuilder implements FilterBuilder {
 
-  private final BBTermBuilder termBuilder;
+  private final TermBuilder termBuilder;
 
-  public BBTermsFilterBuilder(BBTermBuilder termBuilder) {
+  public TermsFilterBuilder(TermBuilder termBuilder) {
     this.termBuilder = termBuilder;
   }
 
-  private class TermsFilterProcessor implements BBTermBuilder.BBTermProcessor {
+  private class TermsFilterProcessor implements TermBuilder.TermProcessor {
     public List<Term> terms = new ArrayList<Term>();
     public void process(Term t) {
       terms.add(t);

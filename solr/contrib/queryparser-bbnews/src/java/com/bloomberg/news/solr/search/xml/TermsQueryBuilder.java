@@ -1,4 +1,4 @@
-package org.apache.lucene.queryparser.xml.builders;
+package com.bloomberg.news.solr.search.xml;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -9,7 +9,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.queryparser.xml.DOMUtils;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
-import org.apache.lucene.queryparser.xml.BBTermBuilder;
 import org.w3c.dom.Element;
 
 /*
@@ -34,16 +33,15 @@ import org.w3c.dom.Element;
  * Builds a TermQuery If there is only one resulting term after analyzer being applied 
  * Builds a BooleanQuery from all of the terms found in the XML element using the choice of analyzer, if there are multiple terms.
  */
-@Deprecated // in favour of com.bloomberg.news equivalent
-public class BBTermsQueryBuilder implements QueryBuilder {
+public class TermsQueryBuilder implements QueryBuilder {
 
-  private final BBTermBuilder termBuilder;
+  private final TermBuilder termBuilder;
 
-  public BBTermsQueryBuilder(BBTermBuilder termBuilder) {
+  public TermsQueryBuilder(TermBuilder termBuilder) {
     this.termBuilder = termBuilder;
   }
 
-  private class TermsQueryProcessor implements BBTermBuilder.BBTermProcessor {
+  private class TermsQueryProcessor implements TermBuilder.TermProcessor {
     private BooleanQuery bq = null;//this will be instantiated only if the TermsQuery results in multiple terms
     private TermQuery    firstTq = null;//Keeps the first TermQuery for the first Term in the query and if there are more terms found then this will be consumed by above BooleanQuery
     private final Element xmlQueryElement;
