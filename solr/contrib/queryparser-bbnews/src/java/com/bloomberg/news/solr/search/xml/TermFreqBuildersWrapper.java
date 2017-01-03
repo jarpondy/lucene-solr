@@ -30,6 +30,26 @@ import org.w3c.dom.Element;
  */
 public class TermFreqBuildersWrapper implements QueryBuilder {
 
+  static QueryBuilder newTermQueryBuilder(String defaultField, Analyzer analyzer,
+    QueryBuilder queryFactory) {
+    return new TermQueryBuilder(new TermBuilder(analyzer));
+  }
+
+  static QueryBuilder newTermsQueryBuilder(String defaultField, Analyzer analyzer,
+    QueryBuilder queryFactory) {
+    return new TermsQueryBuilder(new TermBuilder(analyzer));
+  }
+
+  static FilterBuilder newTermFilterBuilder(String defaultField, Analyzer analyzer,
+    QueryBuilder queryFactory) {
+    return new TermFilterBuilder(new TermBuilder(analyzer));
+  }
+
+  static FilterBuilder newTermsFilterBuilder(String defaultField, Analyzer analyzer,
+    QueryBuilder queryFactory) {
+    return new TermsFilterBuilder(new TermBuilder(analyzer));
+  }
+
   public TermFreqBuildersWrapper(String defaultField, Analyzer analyzer,
     QueryBuilder queryFactory) {
 
