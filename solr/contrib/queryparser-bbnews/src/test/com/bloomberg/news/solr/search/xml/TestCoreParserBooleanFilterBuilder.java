@@ -20,7 +20,6 @@ package com.bloomberg.news.solr.search.xml;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queries.BooleanFilter;
 import org.apache.lucene.queries.FilterClause;
-import org.apache.lucene.queryparser.xml.builders.TermsFilterBuilder;
 import org.apache.lucene.queryparser.xml.CoreParser;
 import org.apache.lucene.queryparser.xml.FilterBuilder;
 import org.apache.lucene.queryparser.xml.ParserException;
@@ -48,25 +47,26 @@ public class TestCoreParserBooleanFilterBuilder extends TestCoreParser {
     }
   }
 
-  private class CoreParserBooleanFilter extends CoreParser {
-    CoreParserBooleanFilter(String defaultField, Analyzer analyzer) {
+  private static class CoreParserBooleanFilter extends CoreParser {
+    CoreParserBooleanFilter(String defaultField, Analyzer analyzer, boolean useTermsFilter) {
       super(defaultField, analyzer);
 
       // the filter to be tested
       filterFactory.addBuilder("BooleanFilter", new BooleanFilterBuilder(
         defaultField, analyzer, null, filterFactory));
+
+      // sometimes but not always together with TermsFilter(Builder)
+      if (useTermsFilter) {
+        // used by lucene/queryparser/src/test/org/apache/lucene/queryparser/xml/BooleanFilter.xml
+        // org.apache and com.bloomberg.news BooleanFilterBuilder should both pass BooleanFilter.xml tests
+        addFilterBuilder("TermsFilter", TermFreqBuildersWrapper.newTermsFilterBuilder(
+          defaultField, analyzer, queryFactory));
+      }
     }
   }
 
   protected CoreParser newCoreParser(String defaultField, Analyzer analyzer) {
-    final CoreParser coreParser = new CoreParserBooleanFilter(defaultField, analyzer);
-
-    // sometimes but not always together with TermsFilter(Builder)
-    if (useTermsFilter) {
-      // used by lucene/queryparser/src/test/org/apache/lucene/queryparser/xml/BooleanFilter.xml
-      // org.apache and com.bloomberg.news BooleanFilterBuilder should both pass BooleanFilter.xml tests
-      coreParser.addFilterBuilder("TermsFilter", new TermsFilterBuilder(analyzer));
-    }
+    final CoreParser coreParser = new CoreParserBooleanFilter(defaultField, analyzer, useTermsFilter);
 
     // always with MatchAllDocsFilter(Builder) but its element name can vary
     coreParser.addFilterBuilder(matchAllDocsFilterName, new FilterBuilder() {

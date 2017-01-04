@@ -17,9 +17,9 @@ package com.bloomberg.news.solr.search.xml;
  * limitations under the License.
  */
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.xml.QueryBuilderFactory;
 import org.apache.lucene.queryparser.xml.builders.MatchAllDocsQueryBuilder;
-import org.apache.lucene.queryparser.xml.builders.TermQueryBuilder;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.DisjunctionMaxQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -43,9 +43,13 @@ public class TestDisjunctionMaxQueryBuilder extends LuceneTestCase {
   public void testDisjunctionMaxQuery() throws Exception {
 
     final QueryBuilderFactory queryFactory = new QueryBuilderFactory();
-    queryFactory.addBuilder("TermQuery", new TermQueryBuilder());
+    final Analyzer analyzer = null;
+    final String defaultField = null;
+    queryFactory.addBuilder("TermQuery", TermFreqBuildersWrapper.newTermQueryBuilder(
+      defaultField, analyzer, queryFactory));
     queryFactory.addBuilder("MatchAllDocsQuery", new MatchAllDocsQueryBuilder());
-    final DisjunctionMaxQueryBuilder dmqBuilder = new DisjunctionMaxQueryBuilder(null, null, null, queryFactory);
+    final DisjunctionMaxQueryBuilder dmqBuilder = new DisjunctionMaxQueryBuilder(
+      defaultField, analyzer, null, queryFactory);
 
     final float tieBreakerMultiplier = random().nextFloat();
     final boolean madQueryOnly = random().nextBoolean();
