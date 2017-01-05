@@ -12,6 +12,7 @@
 
   <path id="test.classpath">
     <path refid="solr.test.base.classpath"/>
+    <pathelement path="${solr-contrib.dir}/../build/contrib/solr-analysis-bbnews/classes/java"/>
     <pathelement path="${common.dir}/build/queryparser/classes/java"/>
     <pathelement path="${common.dir}/build/queryparser/classes/test"/>
   </path>

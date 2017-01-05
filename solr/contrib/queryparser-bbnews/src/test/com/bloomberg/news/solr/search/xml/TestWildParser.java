@@ -29,7 +29,6 @@ import org.apache.lucene.analysis.ja.JapaneseBaseFormFilter;
 import org.apache.lucene.analysis.ja.JapaneseKatakanaStemFilter;
 import org.apache.lucene.analysis.ja.JapaneseNumberFilter;
 import org.apache.lucene.analysis.ja.JapaneseTokenizer;
-import org.apache.lucene.analysis.standard.BBFinancialStandardTokenizer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.FieldedQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -43,6 +42,8 @@ import org.apache.lucene.util.LuceneTestCase;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import com.bloomberg.news.lucene.analysis.standard.FinancialStandardTokenizer;
+
 import java.io.Reader;
 
 public class TestWildParser extends LuceneTestCase {
@@ -54,7 +55,7 @@ public class TestWildParser extends LuceneTestCase {
 
     @Override
     protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-      final Tokenizer src = new BBFinancialStandardTokenizer(TEST_VERSION_CURRENT, reader);
+      final Tokenizer src = new FinancialStandardTokenizer(TEST_VERSION_CURRENT, reader);
       TokenStream tok = new ICUFoldingFilter(src);
       tok = new LowerCaseFilter(TEST_VERSION_CURRENT, tok);
       return new TokenStreamComponents(src, tok);
@@ -68,7 +69,7 @@ public class TestWildParser extends LuceneTestCase {
 
     @Override
     protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-      final Tokenizer src = new BBFinancialStandardTokenizer(TEST_VERSION_CURRENT, reader);
+      final Tokenizer src = new FinancialStandardTokenizer(TEST_VERSION_CURRENT, reader);
       TokenStream tok = new ICUFoldingFilter(src);
       tok = new LowerCaseFilter(TEST_VERSION_CURRENT, tok);
       tok = new PorterStemFilter(tok);
