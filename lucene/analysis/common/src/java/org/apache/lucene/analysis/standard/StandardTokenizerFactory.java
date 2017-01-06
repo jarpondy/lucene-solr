@@ -33,7 +33,7 @@ import java.util.Map;
  * &lt;/fieldType&gt;</pre> 
  */
 public class StandardTokenizerFactory extends TokenizerFactory {
-  protected final int maxTokenLength;
+  private final int maxTokenLength;
   
   /** Creates a new StandardTokenizerFactory */
   public StandardTokenizerFactory(Map<String,String> args) {
