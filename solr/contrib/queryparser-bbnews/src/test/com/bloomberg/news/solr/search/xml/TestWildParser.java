@@ -27,6 +27,7 @@ import org.apache.lucene.analysis.en.PorterStemFilter;
 import org.apache.lucene.analysis.icu.ICUFoldingFilter;
 import org.apache.lucene.analysis.ja.JapaneseBaseFormFilter;
 import org.apache.lucene.analysis.ja.JapaneseKatakanaStemFilter;
+import org.apache.lucene.analysis.ja.JapaneseNumberFilter;
 import org.apache.lucene.analysis.ja.JapaneseTokenizer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.FieldedQuery;
@@ -41,7 +42,6 @@ import org.apache.lucene.util.LuceneTestCase;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import com.bloomberg.news.lucene.analysis.ja.JapaneseNumberFilter;
 import com.bloomberg.news.lucene.analysis.standard.FinancialStandardTokenizer;
 
 import java.io.Reader;
