@@ -119,6 +119,7 @@ public class StreamHandler extends RequestHandlerBase implements SolrCoreAware, 
       .withFunctionName("jdbc", JDBCStream.class)
       .withFunctionName("topic", TopicStream.class)
       .withFunctionName("commit", CommitStream.class)
+      .withFunctionName("random", RandomStream.class)
       
       // decorator streams
       .withFunctionName("merge", MergeStream.class)
@@ -141,6 +142,7 @@ public class StreamHandler extends RequestHandlerBase implements SolrCoreAware, 
       .withFunctionName("daemon", DaemonStream.class)
       .withFunctionName("shortestPath", ShortestPathStream.class)
       .withFunctionName("gatherNodes", GatherNodesStream.class)
+      .withFunctionName("nodes", GatherNodesStream.class)
       .withFunctionName("select", SelectStream.class)
       .withFunctionName("scoreNodes", ScoreNodesStream.class)
       .withFunctionName("model", ModelStream.class)

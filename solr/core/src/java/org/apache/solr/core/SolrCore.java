@@ -146,6 +146,7 @@ import org.apache.solr.update.processor.UpdateRequestProcessorChain;
 import org.apache.solr.update.processor.UpdateRequestProcessorChain.ProcessorInfo;
 import org.apache.solr.update.processor.UpdateRequestProcessorFactory;
 import org.apache.solr.util.DefaultSolrThreadFactory;
+import org.apache.solr.util.NumberUtils;
 import org.apache.solr.util.PropertiesInputStream;
 import org.apache.solr.util.RefCounted;
 import org.apache.solr.util.plugin.NamedListInitializedPlugin;
@@ -390,6 +391,22 @@ public final class SolrCore implements SolrInfoMBean, Closeable {
 
   public IndexReaderFactory getIndexReaderFactory() {
     return indexReaderFactory;
+  }
+  
+  public long getIndexSize() {
+    Directory dir;
+    long size = 0;
+    try {
+      dir = directoryFactory.get(getIndexDir(), DirContext.DEFAULT, solrConfig.indexConfig.lockType);
+      try {
+        size = DirectoryFactory.sizeOfDirectory(dir);
+      } finally {
+        directoryFactory.release(dir);
+      }
+    } catch (IOException e) {
+      SolrException.log(log, "IO error while trying to get the size of the Directory", e);
+    }
+    return size;
   }
 
   @Override
@@ -1670,7 +1687,7 @@ public final class SolrCore implements SolrInfoMBean, Closeable {
   public IndexFingerprint getIndexFingerprint(SolrIndexSearcher searcher, LeafReaderContext ctx, long maxVersion)
       throws IOException {
     IndexFingerprint f = null;
-    f = perSegmentFingerprintCache.get(ctx.reader().getCoreCacheKey());
+    f = perSegmentFingerprintCache.get(ctx.reader().getCombinedCoreAndDeletesKey());
     // fingerprint is either not cached or
     // if we want fingerprint only up to a version less than maxVersionEncountered in the segment, or
     // documents were deleted from segment for which fingerprint was cached
@@ -1681,7 +1698,7 @@ public final class SolrCore implements SolrInfoMBean, Closeable {
       // cache fingerprint for the segment only if all the versions in the segment are included in the fingerprint
       if (f.getMaxVersionEncountered() == f.getMaxInHash()) {
         log.info("Caching fingerprint for searcher:{} leafReaderContext:{} mavVersion:{}", searcher, ctx, maxVersion);
-        perSegmentFingerprintCache.put(ctx.reader().getCoreCacheKey(), f);
+        perSegmentFingerprintCache.put(ctx.reader().getCombinedCoreAndDeletesKey(), f);
       }
 
     } else {
@@ -2653,6 +2670,9 @@ public final class SolrCore implements SolrInfoMBean, Closeable {
     lst.add("refCount", getOpenCount());
     lst.add("instanceDir", resourceLoader.getInstancePath());
     lst.add("indexDir", getIndexDir());
+    long size = getIndexSize();
+    lst.add("sizeInBytes", size);
+    lst.add("size", NumberUtils.readableSize(size));
 
     CoreDescriptor cd = getCoreDescriptor();
     if (cd != null) {
