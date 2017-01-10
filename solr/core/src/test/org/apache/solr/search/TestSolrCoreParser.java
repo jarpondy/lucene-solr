@@ -57,7 +57,7 @@ public class TestSolrCoreParser extends LuceneTestCase {
         args.add("GoodbyeQuery", GoodbyeQueryBuilder.class.getCanonicalName());
         args.add("HandyQuery", HandyQueryBuilder.class.getCanonicalName());
         args.add("ApacheLuceneSolr", ApacheLuceneSolrNearQueryBuilder.class.getCanonicalName());
-        args.add("RandomQuery", RandomWordQueryBuilder.class.getCanonicalName());
+        args.add("ChooseOneWord", ChooseOneWordQueryBuilder.class.getCanonicalName());
         solrCoreParser.init(args);
       }
     }
@@ -153,12 +153,12 @@ public class TestSolrCoreParser extends LuceneTestCase {
     }
   }
 
-  private static String composeRandomQueryXml(String fieldName, String... termTexts) {
-    final StringBuilder sb = new StringBuilder("<RandomQuery fieldName='"+fieldName+"'>");
+  private static String composeChooseOneWordQueryXml(String fieldName, String... termTexts) {
+    final StringBuilder sb = new StringBuilder("<ChooseOneWord fieldName='"+fieldName+"'>");
     for (String termText : termTexts) {
       sb.append("<Word>").append(termText).append("</Word>");
     }
-    sb.append("</RandomQuery>");
+    sb.append("</ChooseOneWord>");
     return sb.toString();
   }
 
@@ -168,7 +168,7 @@ public class TestSolrCoreParser extends LuceneTestCase {
     // the custom queries
     final String fieldName = "contents";
     final String[] randomTerms = new String[] {"bumble", "honey", "solitary"};
-    final String randomQuery = composeRandomQueryXml(fieldName, randomTerms);
+    final String randomQuery = composeChooseOneWordQueryXml(fieldName, randomTerms);
     final String apacheLuceneSolr = "<ApacheLuceneSolr fieldName='"+fieldName+"'/>";
     // the wrapping query
     final String parentQuery = (span ? "SpanOr" : "BooleanQuery");
@@ -184,18 +184,18 @@ public class TestSolrCoreParser extends LuceneTestCase {
       assertTrue(unwrapSpanBoostQuery(query) instanceof SpanOrQuery);
       final SpanOrQuery soq = (SpanOrQuery)unwrapSpanBoostQuery(query);
       assertEquals(2, soq.getClauses().length);
-      checkRandomQuery(span, soq.getClauses()[0], fieldName, randomTerms);
+      checkChooseOneWordQuery(span, soq.getClauses()[0], fieldName, randomTerms);
       checkApacheLuceneSolr(soq.getClauses()[1], fieldName);
     } else {
       assertTrue(query instanceof BooleanQuery);
       final BooleanQuery bq = (BooleanQuery)query;
       assertEquals(2, bq.clauses().size());
-      checkRandomQuery(span, bq.clauses().get(0).getQuery(), fieldName, randomTerms);
+      checkChooseOneWordQuery(span, bq.clauses().get(0).getQuery(), fieldName, randomTerms);
       checkApacheLuceneSolr(bq.clauses().get(1).getQuery(), fieldName);
     }
   }
 
-  private static void checkRandomQuery(boolean span, Query query, String fieldName, String ... expectedTermTexts) {
+  private static void checkChooseOneWordQuery(boolean span, Query query, String fieldName, String ... expectedTermTexts) {
     final Term term;
     if (span) {
       assertTrue(query instanceof SpanTermQuery);

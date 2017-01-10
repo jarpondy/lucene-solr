@@ -28,18 +28,19 @@ public abstract class SolrQueryBuilder implements QueryBuilder, SpanQueryBuilder
 
   protected final SolrQueryRequest req;
   protected final QueryBuilder queryFactory;
-  protected SpanQueryBuilder spanFactory;
+  protected final SpanQueryBuilder spanFactory;
 
   @Deprecated
   public SolrQueryBuilder(String defaultField, Analyzer analyzer,
       SolrQueryRequest req, QueryBuilder queryFactory) {
-    this.req = req;
-    this.queryFactory = queryFactory;
+    this(defaultField, analyzer, req, queryFactory, null);
   }
 
   public SolrQueryBuilder(String defaultField, Analyzer analyzer,
       SolrQueryRequest req, QueryBuilder queryFactory, SpanQueryBuilder spanFactory) {
-    this(defaultField, analyzer, req, queryFactory);
+    super();
+    this.req = req;
+    this.queryFactory = queryFactory;
     this.spanFactory = spanFactory;
   }
 

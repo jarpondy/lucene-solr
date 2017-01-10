@@ -20,19 +20,22 @@ import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.xml.CoreParser;
+import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
 import org.apache.lucene.queryparser.xml.builders.SpanQueryBuilder;
+import org.apache.lucene.search.spans.SpanQuery;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.util.plugin.NamedListInitializedPlugin;
+import org.w3c.dom.Element;
 
 /**
  * Assembles a QueryBuilder which uses Query objects from Solr's <code>search</code> module
  * in addition to Query objects supported by the Lucene <code>CoreParser</code>.
  */
-public class SolrCoreParser extends CoreParser implements NamedListInitializedPlugin {
+public class SolrCoreParser extends CoreParser implements NamedListInitializedPlugin, SpanQueryBuilder {
 
   protected final SolrQueryRequest req;
 
@@ -44,7 +47,7 @@ public class SolrCoreParser extends CoreParser implements NamedListInitializedPl
   }
 
   @Override
-  public void init(@SuppressWarnings("rawtypes") NamedList initArgs) {
+  public void init(NamedList initArgs) {
     if (initArgs == null || initArgs.size() == 0) {
       return;
     }
@@ -55,7 +58,6 @@ public class SolrCoreParser extends CoreParser implements NamedListInitializedPl
       loader = req.getCore().getResourceLoader();
     }
 
-    @SuppressWarnings("unchecked")
     final Iterable<Map.Entry<String,Object>> args = initArgs;
     for (final Map.Entry<String,Object> entry : args) {
       final String queryName = entry.getKey();
@@ -66,19 +68,27 @@ public class SolrCoreParser extends CoreParser implements NamedListInitializedPl
             queryBuilderClassName,
             SolrQueryBuilder.class,
             null,
-            new Class[] {String.class, Analyzer.class, SolrQueryRequest.class, QueryBuilder.class},
-            new Object[] {defaultField, analyzer, req, this});
+            new Class[] {String.class, Analyzer.class, SolrQueryRequest.class, QueryBuilder.class, SpanQueryBuilder.class},
+            new Object[] {defaultField, analyzer, req, this, this});
+
         this.queryFactory.addBuilder(queryName, queryBuilder);
+        this.spanFactory.addBuilder(queryName, queryBuilder);
       } catch (SolrException ex) {
         final SolrQueryBuilder queryBuilder = loader.newInstance(
             queryBuilderClassName,
             SolrQueryBuilder.class,
             null,
-            new Class[] {String.class, Analyzer.class, SolrQueryRequest.class, QueryBuilder.class, SpanQueryBuilder.class},
-            new Object[] {defaultField, analyzer, req, this, this});
+            new Class[] {String.class, Analyzer.class, SolrQueryRequest.class, QueryBuilder.class},
+            new Object[] {defaultField, analyzer, req, this});
+
         this.queryFactory.addBuilder(queryName, queryBuilder);
       }
     }
+  }
+
+  @Override
+  public SpanQuery getSpanQuery(Element e) throws ParserException {
+    return this.spanFactory.getSpanQuery(e);
   }
 
 }

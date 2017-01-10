@@ -16,42 +16,50 @@
  */
 package org.apache.solr.search;
 
-import java.util.Random;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.xml.DOMUtils;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
+import org.apache.lucene.queryparser.xml.builders.SpanQueryBuilder;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.spans.SpanQuery;
+import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.solr.request.SolrQueryRequest;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class RandomWordQueryBuilder extends SolrQueryBuilder {
+public class ChooseOneWordQueryBuilder extends SolrQueryBuilder {
 
-  final private Random r = new Random();
-
-  public RandomWordQueryBuilder(String defaultField, Analyzer analyzer, SolrQueryRequest req, QueryBuilder queryFactory) {
-    super(defaultField, analyzer, req, queryFactory);
+  public ChooseOneWordQueryBuilder(String defaultField, Analyzer analyzer, SolrQueryRequest req,
+      QueryBuilder queryFactory, SpanQueryBuilder spanFactory) {
+    super(defaultField, analyzer, req, queryFactory, spanFactory);
   }
 
   @Override
   public Query getQuery(Element e) throws ParserException {
-    Query result = null;
+    return implGetQuery(e, false);
+  }
+
+  @Override
+  public SpanQuery getSpanQuery(Element e) throws ParserException {
+    return (SpanQuery)implGetQuery(e, true);
+  }
+
+  public Query implGetQuery(Element e, boolean span) throws ParserException {
+    Term term = null;
     final String fieldName = DOMUtils.getAttributeWithInheritanceOrFail(e, "fieldName");
     for (Node node = e.getFirstChild(); node != null; node = node.getNextSibling()) {
       if (node.getNodeType() == Node.ELEMENT_NODE &&
           node.getNodeName().equals("Word")) {
         final String word = DOMUtils.getNonBlankTextOrFail((Element) node);
-        final Term term = new Term(fieldName, word);
-        final Query query = new TermQuery(term);
-        if (result == null || r.nextBoolean()) {
-          result = query;
+        final Term t = new Term(fieldName, word);
+        if (term == null || term.text().length() < t.text().length()) {
+          term = t;
         }
       }
     }
-    return result;
+    return (span ? new SpanTermQuery(term) : new TermQuery(term));
   }
 }
