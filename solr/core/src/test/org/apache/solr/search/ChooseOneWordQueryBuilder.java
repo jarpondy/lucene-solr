@@ -33,8 +33,8 @@ import org.w3c.dom.Node;
 public class ChooseOneWordQueryBuilder extends SolrSpanQueryBuilder {
 
   public ChooseOneWordQueryBuilder(String defaultField, Analyzer analyzer, SolrQueryRequest req,
-      QueryBuilder queryFactory, SpanQueryBuilder spanFactory) {
-    super(defaultField, analyzer, req, queryFactory, spanFactory);
+      SpanQueryBuilder spanFactory) {
+    super(defaultField, analyzer, req, spanFactory);
   }
 
   public Query getQuery(Element e) throws ParserException {

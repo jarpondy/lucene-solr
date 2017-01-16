@@ -32,8 +32,8 @@ import org.w3c.dom.Element;
 public class ApacheLuceneSolrNearQueryBuilder extends SolrSpanQueryBuilder {
 
   public ApacheLuceneSolrNearQueryBuilder(String defaultField, Analyzer analyzer,
-      SolrQueryRequest req, QueryBuilder queryFactory, SpanQueryBuilder spanFactory) {
-    super(defaultField, analyzer, req, queryFactory, spanFactory);
+      SolrQueryRequest req, SpanQueryBuilder spanFactory) {
+    super(defaultField, analyzer, req, spanFactory);
   }
 
   public Query getQuery(Element e) throws ParserException {

@@ -70,8 +70,8 @@ public class SolrCoreParser extends CoreParser implements NamedListInitializedPl
             queryBuilderClassName,
             SolrSpanQueryBuilder.class,
             null,
-            new Class[] {String.class, Analyzer.class, SolrQueryRequest.class, QueryBuilder.class, SpanQueryBuilder.class},
-            new Object[] {defaultField, analyzer, req, this, this});
+            new Class[] {String.class, Analyzer.class, SolrQueryRequest.class, SpanQueryBuilder.class},
+            new Object[] {defaultField, analyzer, req, this});
 
         this.queryFactory.addBuilder(queryName, spanQueryBuilder);
         this.spanFactory.addBuilder(queryName, spanQueryBuilder);
