@@ -73,8 +73,7 @@ public class SolrCoreParser extends CoreParser implements NamedListInitializedPl
             new Class[] {String.class, Analyzer.class, SolrQueryRequest.class, SpanQueryBuilder.class},
             new Object[] {defaultField, analyzer, req, this});
 
-        this.queryFactory.addBuilder(queryName, spanQueryBuilder);
-        this.spanFactory.addBuilder(queryName, spanQueryBuilder);
+        this.addSpanQueryBuilder(queryName, spanQueryBuilder);
       } catch (Exception outerException) {
         try {
         final SolrQueryBuilder queryBuilder = loader.newInstance(
@@ -84,7 +83,7 @@ public class SolrCoreParser extends CoreParser implements NamedListInitializedPl
             new Class[] {String.class, Analyzer.class, SolrQueryRequest.class, QueryBuilder.class},
             new Object[] {defaultField, analyzer, req, this});
 
-        this.queryFactory.addBuilder(queryName, queryBuilder);
+        this.addQueryBuilder(queryName, queryBuilder);
         } catch (Exception innerException) {
           log.error("Class {} not found or not suitable: {} {}",
               queryBuilderClassName, outerException, innerException);
