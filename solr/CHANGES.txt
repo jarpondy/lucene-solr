@@ -71,6 +71,11 @@ Optimizations
   string fields from the FieldCache, resulting in up to 56% better throughput for those cases.
   (yonik)
 
+* SOLR-9584: Support Solr being proxied with another endpoint than default /solr, by using relative links
+  in AdminUI javascripts (Yun Jie Zhou via janhoy)
+
+* SOLR-9941: Clear the deletes lists at UpdateLog before replaying from log. This prevents redundantly pre-applying
+  DBQs, during the log replay, to every update in the log as if the DBQs were out of order. (hossman, Ishan Chattopadhyaya)
 
 ==================  6.4.0 ==================
 
@@ -124,6 +129,9 @@ Upgrade Notes
 
 New Features
 ----------------------
+* SOLR-9918: Add SkipExistingDocumentsProcessor that skips duplicate inserts and ignores updates to missing docs
+  (Tim Owen via koji)
+
 * SOLR-9293: Solrj client support for hierarchical clusters and other topics 
   marker. (Dawid Weiss)
 
@@ -188,20 +196,24 @@ New Features
 
 * SOLR-9805: Use metrics-jvm library to instrument jvm internals such as GC, memory usage and others. (shalin)
 
-* SOLR-9812: SOLR-9911: Added a new /admin/metrics API to return all metrics collected by Solr via API.
-  API supports three optional parameters:
+* SOLR-9812: SOLR-9911, SOLR-9960: Added a new /admin/metrics API to return all metrics collected by Solr via API.
+  API supports four optional multi-valued parameters:
   * 'group' (all,jvm,jetty,node,core),
-  * 'type' (all,counter,timer,gauge,histogram) both of which are multi-valued
-  * 'prefix' that filters the returned metrics
+  * 'type' (all,counter,timer,gauge,histogram),
+  * 'prefix' that filters the returned metrics,
+  * 'registry' that selects one or more registries by prefix (eg. solr.jvm,solr.core.collection1)
   Example: http://localhost:8983/solr/admin/metrics?group=jvm,jetty&type=counter
-  Example: http://localhost:8983/solr/admin/metrics?group=jvm&prefix=buffers
-  (shalin)
+  Example: http://localhost:8983/solr/admin/metrics?group=jvm&prefix=buffers,os
+  Example: http://localhost:8983/solr/admin/metrics?registry=solr.node,solr.core&prefix=ADMIN
+  (shalin, ab)
 
 * SOLR-9884: Add version to segments handler output (Steven Bower via Erick Erickson)
 
 * SOLR-9725: Substitute properties into JdbcDataSource configuration ( Jamie Jackson, Yuri Sashevsky via Mikhail Khludnev)
 
-* SOLR-9877: SOLR-9923: Use instrumented http client and connection pool. (shalin)
+* SOLR-9877: SOLR-9923: SOLR-9948: Use instrumented http client and connection pool in HttpShardHandler and
+  UpdateShardHandler. The metrics are collected per query-less URL and method by default but it can be configured
+  to host/method and per-method as well. (shalin)
 
 * SOLR-9880: Add Ganglia, Graphite and SLF4J metrics reporters. (ab)
 
@@ -231,6 +243,9 @@ New Features
 * SOLR-9856: Collect metrics for shard replication and tlog replay on replicas (ab).
 
 * SOLR-9886: Add a 'enable' flag to caches to enable/disable them (Pushkar Raste, noble)
+
+* SOLR-9947: Clean up some SolrInfoMBean categories. Add an alternative hierarchical view in JMX
+  for SolrInfoMBeans, which uses similar conventions to SolrJmxReporter. (ab)
 
 Optimizations
 ----------------------
@@ -351,6 +366,9 @@ Bug Fixes
   and CloudMLTQParser included extra strings from the field definitions in the query.
   (Ere Maijala via Anshum Gupta)
 
+* SOLR-9954: Prevent against failure during failed snapshot cleanup from swallowing the actual cause
+  for the snapshot to fail. (thelabdude)
+
 Other Changes
 ----------------------
 
@@ -418,6 +436,9 @@ Other Changes
 
 * SOLR-9934: SolrTestCase.clearIndex has been improved to take advantage of low level test specific logic that
   clears the index metadata more completely then a normal *:* DBQ can due to update versioning.  (hossman)
+
+* SOLR-9893: Update Mockito to version 2.6.2 for Java 9 support. Disable all legacy EasyMock tests when running
+  on Java 9 until they were migrated to Mockito. (Uwe Schindler)
 
 ==================  6.3.0 ==================
 
