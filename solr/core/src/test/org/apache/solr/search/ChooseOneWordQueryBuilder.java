@@ -30,19 +30,17 @@ import org.apache.solr.request.SolrQueryRequest;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ChooseOneWordQueryBuilder extends SolrQueryBuilder {
+public class ChooseOneWordQueryBuilder extends SolrSpanQueryBuilder {
 
   public ChooseOneWordQueryBuilder(String defaultField, Analyzer analyzer, SolrQueryRequest req,
       QueryBuilder queryFactory, SpanQueryBuilder spanFactory) {
     super(defaultField, analyzer, req, queryFactory, spanFactory);
   }
 
-  @Override
   public Query getQuery(Element e) throws ParserException {
     return implGetQuery(e, false);
   }
 
-  @Override
   public SpanQuery getSpanQuery(Element e) throws ParserException {
     return (SpanQuery)implGetQuery(e, true);
   }

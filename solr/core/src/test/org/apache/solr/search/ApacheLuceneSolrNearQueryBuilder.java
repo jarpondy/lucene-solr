@@ -29,19 +29,17 @@ import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.solr.request.SolrQueryRequest;
 import org.w3c.dom.Element;
 
-public class ApacheLuceneSolrNearQueryBuilder extends SolrQueryBuilder {
+public class ApacheLuceneSolrNearQueryBuilder extends SolrSpanQueryBuilder {
 
   public ApacheLuceneSolrNearQueryBuilder(String defaultField, Analyzer analyzer,
       SolrQueryRequest req, QueryBuilder queryFactory, SpanQueryBuilder spanFactory) {
     super(defaultField, analyzer, req, queryFactory, spanFactory);
   }
 
-  @Override
   public Query getQuery(Element e) throws ParserException {
     return getSpanQuery(e);
   }
 
-  @Override
   public SpanQuery getSpanQuery(Element e) throws ParserException {
     final String fieldName = DOMUtils.getAttributeWithInheritanceOrFail(e, "fieldName");
     final SpanQuery[] spanQueries = new SpanQuery[]{

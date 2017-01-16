@@ -31,14 +31,13 @@ import org.w3c.dom.Element;
 
 // A simple test query builder to demonstrate use of
 // SolrQueryBuilder's queryFactory constructor argument.
-public class HandyQueryBuilder extends SolrQueryBuilder {
+public class HandyQueryBuilder extends SolrSpanQueryBuilder {
 
   public HandyQueryBuilder(String defaultField, Analyzer analyzer,
       SolrQueryRequest req, QueryBuilder queryFactory, SpanQueryBuilder spanFactory) {
     super(defaultField, analyzer, req, queryFactory, spanFactory);
   }
 
-  @Override
   public Query getQuery(Element e) throws ParserException {
     final BooleanQuery.Builder bq = new BooleanQuery.Builder();
     final Query lhsQ = getSubQuery(e, "Left");
@@ -48,7 +47,6 @@ public class HandyQueryBuilder extends SolrQueryBuilder {
     return bq.build();
   }
 
-  @Override
   public SpanQuery getSpanQuery(Element e) throws ParserException {
     SpanQuery subQueries[] = {
         getSubSpanQuery(e, "Left"),

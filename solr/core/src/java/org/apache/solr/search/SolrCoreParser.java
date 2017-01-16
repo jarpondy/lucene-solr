@@ -16,26 +16,28 @@
  */
 package org.apache.solr.search;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.xml.CoreParser;
-import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.queryparser.xml.QueryBuilder;
 import org.apache.lucene.queryparser.xml.builders.SpanQueryBuilder;
-import org.apache.lucene.search.spans.SpanQuery;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.util.plugin.NamedListInitializedPlugin;
-import org.w3c.dom.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Assembles a QueryBuilder which uses Query objects from Solr's <code>search</code> module
  * in addition to Query objects supported by the Lucene <code>CoreParser</code>.
  */
-public class SolrCoreParser extends CoreParser implements NamedListInitializedPlugin, SpanQueryBuilder {
+public class SolrCoreParser extends CoreParser implements NamedListInitializedPlugin {
+
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   protected final SolrQueryRequest req;
 
@@ -64,16 +66,17 @@ public class SolrCoreParser extends CoreParser implements NamedListInitializedPl
       final String queryBuilderClassName = (String)entry.getValue();
 
       try {
-        final SolrQueryBuilder queryBuilder = loader.newInstance(
+        final SolrSpanQueryBuilder spanQueryBuilder = loader.newInstance(
             queryBuilderClassName,
-            SolrQueryBuilder.class,
+            SolrSpanQueryBuilder.class,
             null,
             new Class[] {String.class, Analyzer.class, SolrQueryRequest.class, QueryBuilder.class, SpanQueryBuilder.class},
             new Object[] {defaultField, analyzer, req, this, this});
 
-        this.queryFactory.addBuilder(queryName, queryBuilder);
-        this.spanFactory.addBuilder(queryName, queryBuilder);
-      } catch (SolrException ex) {
+        this.queryFactory.addBuilder(queryName, spanQueryBuilder);
+        this.spanFactory.addBuilder(queryName, spanQueryBuilder);
+      } catch (Exception outerException) {
+        try {
         final SolrQueryBuilder queryBuilder = loader.newInstance(
             queryBuilderClassName,
             SolrQueryBuilder.class,
@@ -82,13 +85,17 @@ public class SolrCoreParser extends CoreParser implements NamedListInitializedPl
             new Object[] {defaultField, analyzer, req, this});
 
         this.queryFactory.addBuilder(queryName, queryBuilder);
+        } catch (Exception innerException) {
+          log.error("Class {} not found or not suitable: {} {}",
+              queryBuilderClassName, outerException, innerException);
+          throw new SolrException( SolrException.ErrorCode.SERVER_ERROR, "Cannot find suitable "
+                  + SolrSpanQueryBuilder.class.getCanonicalName() + " or "
+                  + SolrQueryBuilder.class.getCanonicalName() + " class: "
+                  + queryBuilderClassName + " in "
+                  + loader);
+        }
       }
     }
-  }
-
-  @Override
-  public SpanQuery getSpanQuery(Element e) throws ParserException {
-    return this.spanFactory.getSpanQuery(e);
   }
 
 }
