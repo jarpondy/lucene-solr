@@ -19,15 +19,17 @@ package org.apache.lucene.search;
 import java.io.IOException;
 import java.util.Set;
 
-import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Weight.PostingFeatures;
+import org.apache.lucene.util.Bits;
 
 /**
  * A {@code FilterWeight} contains another {@code Weight} and implements
  * all abstract methods by calling the contained weight's method.
  *
  * Note that {@code FilterWeight} does not override the non-abstract
- * {@link Weight#bulkScorer(LeafReaderContext)} method and subclasses of
+ * {@link Weight#bulkScorer(AtomicReaderContext, boolean, PostingFeatures, org.apache.lucene.util.Bits)} method and subclasses of
  * {@code FilterWeight} must provide their bulkScorer implementation
  * if required.
  *
@@ -47,22 +49,23 @@ public abstract class FilterWeight extends Weight {
   /**
    * Alternative constructor.
    * Use this variant only if the <code>weight</code> was not obtained
-   * via the {@link Query#createWeight(IndexSearcher, boolean)}
+   * via the {@link Query#createWeight(IndexSearcher)}
    * method of the <code>query</code> object.
    */
   protected FilterWeight(Query query, Weight weight) {
-    super(query);
+    super();
     this.in = weight;
   }
 
-  @Override
-  public void extractTerms(Set<Term> terms) {
-    in.extractTerms(terms);
-  }
 
   @Override
-  public Explanation explain(LeafReaderContext context, int doc) throws IOException {
+  public Explanation explain(AtomicReaderContext context, int doc) throws IOException {
     return in.explain(context, doc);
+  }
+  
+  @Override
+  public Query getQuery() {
+    return in.getQuery();
   }
 
   @Override
@@ -71,13 +74,20 @@ public abstract class FilterWeight extends Weight {
   }
 
   @Override
-  public void normalize(float norm, float boost) {
-    in.normalize(norm, boost);
+  public void normalize(float norm, float topLevelBoost) {
+    in.normalize(norm, topLevelBoost);
   }
-
+  
   @Override
-  public Scorer scorer(LeafReaderContext context) throws IOException {
-    return in.scorer(context);
+  public Scorer scorer(AtomicReaderContext context, PostingFeatures flags, Bits acceptDocs) throws IOException {
+    return in.scorer(context, flags, acceptDocs);
   }
-
+  
+  @Override
+  Scorer scorer(AtomicReaderContext context, boolean scoreDocsInOrder, boolean topScorer, Bits acceptDocs) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+  
+  @Override
+  public boolean scoresDocsOutOfOrder() { return false; }
 }
