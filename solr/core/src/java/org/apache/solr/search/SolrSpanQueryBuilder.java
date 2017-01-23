@@ -17,7 +17,6 @@
 package org.apache.solr.search;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryparser.xml.QueryBuilder;
 import org.apache.lucene.queryparser.xml.builders.SpanQueryBuilder;
 import org.apache.solr.request.SolrQueryRequest;
 
