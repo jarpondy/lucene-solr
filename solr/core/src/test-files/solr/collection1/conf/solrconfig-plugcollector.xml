@@ -31,7 +31,6 @@
 <config>
 
   <jmx />
-
   <!-- Used to specify an alternate directory to hold all index data.
        It defaults to "index" if not present, and should probably
        not be changed if replication is in use. -->
@@ -48,7 +47,7 @@
   </directoryFactory>
   <schemaFactory class="ClassicIndexSchemaFactory"/>
 
-  <luceneMatchVersion>${tests.luceneMatchVersion:LATEST}</luceneMatchVersion>
+  <luceneMatchVersion>${tests.luceneMatchVersion:LUCENE_CURRENT}</luceneMatchVersion>
 
   <xi:include href="solrconfig.snippet.randomindexconfig.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 

@@ -17,6 +17,7 @@
 package org.apache.solr.search;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.lucene.index.IndexReader;
@@ -26,9 +27,9 @@ import org.apache.lucene.search.Rescorer;
 import org.apache.lucene.search.TopDocsCollector;
 import org.apache.lucene.search.Weight;
 import org.apache.lucene.util.BytesRef;
-import org.apache.solr.handler.component.MergeStrategy;
 import org.apache.solr.handler.component.QueryElevationComponent;
 import org.apache.solr.request.SolrRequestInfo;
+import org.apache.solr.search.SolrIndexSearcher.QueryCommand;
 
 public abstract class AbstractReRankQuery extends RankQuery {
   protected Query mainQuery;
@@ -49,21 +50,15 @@ public abstract class AbstractReRankQuery extends RankQuery {
     return  this;
   }
 
-  public MergeStrategy getMergeStrategy() {
-    return null;
-  }
-
   public TopDocsCollector getTopDocsCollector(int len, QueryCommand cmd, IndexSearcher searcher) throws IOException {
-
     if(this.boostedPriority == null) {
       SolrRequestInfo info = SolrRequestInfo.getRequestInfo();
       if(info != null) {
         Map context = info.getReq().getContext();
-        this.boostedPriority = (Map<BytesRef, Integer>)context.get(QueryElevationComponent.BOOSTED_PRIORITY);
+        this.boostedPriority = (Map<BytesRef, Integer>)context.get(QueryElevationComponent.BOOSTED);
       }
     }
-
-    return new ReRankCollector(reRankDocs, len, reRankQueryRescorer, cmd, searcher, boostedPriority);
+    return new ReRankCollector(reRankDocs, len, reRankQueryRescorer, cmd, searcher, this.boostedPriority);
   }
 
   public Query rewrite(IndexReader reader) throws IOException {
@@ -76,8 +71,9 @@ public abstract class AbstractReRankQuery extends RankQuery {
 
   protected abstract Query rewrite(Query rewrittenMainQuery) throws IOException;
 
-  public Weight createWeight(IndexSearcher searcher, boolean needsScores) throws IOException{
-    final Weight mainWeight = mainQuery.createWeight(searcher, needsScores);
+  @Override
+  public Weight createWeight(IndexSearcher searcher) throws IOException{
+    final Weight mainWeight = mainQuery.createWeight(searcher);
     return new ReRankWeight(mainQuery, reRankQueryRescorer, searcher, mainWeight);
   }
 }

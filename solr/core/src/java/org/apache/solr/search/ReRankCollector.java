@@ -20,14 +20,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
-import com.carrotsearch.hppc.IntFloatHashMap;
-import com.carrotsearch.hppc.IntIntHashMap;
+import java.util.PriorityQueue;
 
-import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.LeafCollector;
 import org.apache.lucene.search.Rescorer;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopDocsCollector;
@@ -37,9 +36,10 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.handler.component.QueryElevationComponent;
 import org.apache.solr.request.SolrRequestInfo;
+import org.apache.solr.search.SolrIndexSearcher.QueryCommand;
 
 /* A TopDocsCollector used by reranking queries. */
-public class ReRankCollector extends TopDocsCollector {
+public class ReRankCollector extends TopDocsCollector<ScoreDoc> {
 
   final private TopDocsCollector  mainCollector;
   final private IndexSearcher searcher;
@@ -47,7 +47,6 @@ public class ReRankCollector extends TopDocsCollector {
   final private int length;
   final private Map<BytesRef, Integer> boostedPriority;
   final private Rescorer reRankQueryRescorer;
-
 
   public ReRankCollector(int reRankDocs,
       int length,
@@ -59,12 +58,13 @@ public class ReRankCollector extends TopDocsCollector {
     this.reRankDocs = reRankDocs;
     this.length = length;
     this.boostedPriority = boostedPriority;
+    final boolean docsScoredInOrder = true;
     Sort sort = cmd.getSort();
     if(sort == null) {
-      this.mainCollector = TopScoreDocCollector.create(Math.max(this.reRankDocs, length));
+      this.mainCollector = TopScoreDocCollector.create(Math.max(this.reRankDocs, length), docsScoredInOrder);
     } else {
       sort = sort.rewrite(searcher);
-      this.mainCollector = TopFieldCollector.create(sort, Math.max(this.reRankDocs, length), false, true, true);
+      this.mainCollector = TopFieldCollector.create(sort, Math.max(this.reRankDocs, length), false, true, true, docsScoredInOrder);
     }
     this.searcher = searcher;
     this.reRankQueryRescorer = reRankQueryRescorer;
@@ -74,15 +74,6 @@ public class ReRankCollector extends TopDocsCollector {
     return mainCollector.getTotalHits();
   }
 
-  @Override
-  public LeafCollector getLeafCollector(LeafReaderContext context) throws IOException {
-    return mainCollector.getLeafCollector(context);
-  }
-
-  @Override
-  public boolean needsScores() {
-    return true;
-  }
 
   public TopDocs topDocs(int start, int howMany) {
 
@@ -105,17 +96,10 @@ public class ReRankCollector extends TopDocsCollector {
 
       //Lower howMany to return if we've collected fewer documents.
       howMany = Math.min(howMany, mainScoreDocs.length);
-
+      
       if(boostedPriority != null) {
-        SolrRequestInfo info = SolrRequestInfo.getRequestInfo();
-        Map requestContext = null;
-        if(info != null) {
-          requestContext = info.getReq().getContext();
-        }
-
-        IntIntHashMap boostedDocs = QueryElevationComponent.getBoostDocs((SolrIndexSearcher)searcher, boostedPriority, requestContext);
-
-        Arrays.sort(rescoredDocs.scoreDocs, new BoostedComp(boostedDocs, mainDocs.scoreDocs, rescoredDocs.getMaxScore()));
+          // We are not using QueryElevationComponent,so I'm not porting this feature
+          throw new UnsupportedOperationException("QueryEvevation component not supported");
       }
 
       if(howMany == rescoredDocs.scoreDocs.length) {
@@ -139,37 +123,23 @@ public class ReRankCollector extends TopDocsCollector {
     }
   }
 
-  public class BoostedComp implements Comparator {
-    IntFloatHashMap boostedMap;
+  @Override
+  public void setScorer(Scorer scorer) throws IOException {
+    mainCollector.setScorer(scorer);
+  }
 
-    public BoostedComp(IntIntHashMap boostedDocs, ScoreDoc[] scoreDocs, float maxScore) {
-      this.boostedMap = new IntFloatHashMap(boostedDocs.size()*2);
+  @Override
+  public void collect(int doc) throws IOException {
+    mainCollector.collect(doc);
+  }
 
-      for(int i=0; i<scoreDocs.length; i++) {
-        final int idx;
-        if((idx = boostedDocs.indexOf(scoreDocs[i].doc)) >= 0) {
-          boostedMap.put(scoreDocs[i].doc, maxScore+boostedDocs.indexGet(idx));
-        } else {
-          break;
-        }
-      }
-    }
+  @Override
+  public void setNextReader(AtomicReaderContext context) throws IOException {
+    mainCollector.setNextReader(context);
+  }
 
-    public int compare(Object o1, Object o2) {
-      ScoreDoc doc1 = (ScoreDoc) o1;
-      ScoreDoc doc2 = (ScoreDoc) o2;
-      float score1 = doc1.score;
-      float score2 = doc2.score;
-      int idx;
-      if((idx = boostedMap.indexOf(doc1.doc)) >= 0) {
-        score1 = boostedMap.indexGet(idx);
-      }
-
-      if((idx = boostedMap.indexOf(doc2.doc)) >= 0) {
-        score2 = boostedMap.indexGet(idx);
-      }
-
-      return -Float.compare(score1, score2);
-    }
+  @Override
+  public boolean acceptsDocsOutOfOrder() {
+    return false;
   }
 }

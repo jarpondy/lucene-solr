@@ -18,7 +18,7 @@ package org.apache.solr.search;
 
 import java.io.IOException;
 
-import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.FilterWeight;
 import org.apache.lucene.search.IndexSearcher;
@@ -40,9 +40,8 @@ public class ReRankWeight extends FilterWeight {
     this.reRankQueryRescorer = reRankQueryRescorer;
   }
 
-  public Explanation explain(LeafReaderContext context, int doc) throws IOException {
+  public Explanation explain(AtomicReaderContext context, int doc) throws IOException {
     final Explanation mainExplain = in.explain(context, doc);
     return reRankQueryRescorer.explain(searcher, mainExplain, context.docBase+doc);
   }
-
 }
