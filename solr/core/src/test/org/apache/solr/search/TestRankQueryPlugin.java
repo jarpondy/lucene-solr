@@ -139,7 +139,8 @@ public class TestRankQueryPlugin extends QParserPlugin {
       this.collector = collector;
       this.mergeStrategy = mergeStrategy;
     }
-
+    
+    @Override
     public TopDocsCollector getTopDocsCollector(int len, SolrIndexSearcher.QueryCommand cmd, IndexSearcher searcher) {
       if(collector == 0)
         return new TestCollector(null);
@@ -184,6 +185,7 @@ public class TestRankQueryPlugin extends QParserPlugin {
       return list.size();
     }
 
+    @Override
     public TopDocs topDocs() {
       Collections.sort(list, new Comparator() {
         public int compare(Object o1, Object o2) {

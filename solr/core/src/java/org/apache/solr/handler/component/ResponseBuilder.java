@@ -32,6 +32,7 @@ import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.search.CursorMark;
 import org.apache.solr.search.DocListAndSet;
 import org.apache.solr.search.QParser;
+import org.apache.solr.search.RankQuery;
 import org.apache.solr.search.SolrIndexSearcher;
 import org.apache.solr.search.SortSpec;
 import org.apache.solr.search.grouping.GroupingSpecification;
@@ -69,6 +70,8 @@ public class ResponseBuilder
   private String queryString = null;
   private Query query = null;
   private List<Query> filters = null;
+  private RankQuery rankQuery;
+
   private SortSpec sortSpec = null;
   private GroupingSpecification groupingSpec;
   private CursorMark cursorMark;
@@ -403,7 +406,7 @@ public class ResponseBuilder
    */
   public SolrIndexSearcher.QueryCommand getQueryCommand() {
     SolrIndexSearcher.QueryCommand cmd = new SolrIndexSearcher.QueryCommand();
-    cmd.setQuery(getQuery())
+    cmd.setQuery(wrap(getQuery()))
             .setFilterList(getFilters())
             .setSort(getSortSpec().getSort())
             .setOffset(getSortSpec().getOffset())
@@ -420,6 +423,15 @@ public class ResponseBuilder
           .setBelowAnchorCount(anchor.below);
     }
     return cmd;
+  }
+  
+  /** Calls {@link RankQuery#wrap(Query)} if there's a rank query, otherwise just returns the query. */
+  public Query wrap(Query q) {
+    if(this.rankQuery != null) {
+      return this.rankQuery.wrap(q);
+    } else {
+      return q;
+    }
   }
 
   /**
@@ -465,5 +477,13 @@ public class ResponseBuilder
   }
   public void setAnchor(Anchor anchor) {
     this.anchor = anchor;
+  }
+
+  public RankQuery getRankQuery(){
+    return rankQuery;
+  }
+  
+  public void setRankQuery(RankQuery rankQuery) {
+    this.rankQuery = rankQuery;
   }
 }

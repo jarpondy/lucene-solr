@@ -35,6 +35,7 @@ import java.util.*;
 public abstract class QParser {
   protected String qstr;
   protected SolrParams params;
+  protected SolrParams rqParams;
   protected SolrParams localParams;
   protected SolrQueryRequest req;
   protected int recurseCount;
@@ -313,10 +314,22 @@ public abstract class QParser {
 
     QParserPlugin qplug = req.getCore().getQueryPlugin(parserName);
     QParser parser =  qplug.createParser(qstr, localParams, req.getParams(), req);
+    
+    String rqQuery = globalParams.get(CommonParams.RQ);
+    final SolrParams rq;
+    if (rqQuery != null){
+      Map<String, String> rqMap = new HashMap<>();
+      localParamsEnd = QueryParsing.parseLocalParams(rqQuery, 0, rqMap, globalParams);
+      rq = new MapSolrParams(rqMap);
+    } 
+    else {
+      rq = null;
+    }
 
     parser.stringIncludingLocalParams = stringIncludingLocalParams;
     parser.valFollowedParams = valFollowedParams;
     parser.localParamsEnd = localParamsEnd;
+    parser.rqParams = rq;
     return parser;
   }
 

@@ -39,7 +39,7 @@ public class RankQueryTest extends SolrTestCaseJ4 {
     assertU(commit());
   }
 
-  @Ignore
+  
   @Test
   public void testPluggableCollector() throws Exception {
 

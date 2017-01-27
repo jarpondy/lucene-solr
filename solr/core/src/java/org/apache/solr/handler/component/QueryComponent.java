@@ -58,6 +58,7 @@ import org.apache.solr.search.Grouping;
 import org.apache.solr.search.QParser;
 import org.apache.solr.search.QParserPlugin;
 import org.apache.solr.search.QueryParsing;
+import org.apache.solr.search.RankQuery;
 import org.apache.solr.search.ReturnFields;
 import org.apache.solr.search.SolrIndexSearcher;
 import org.apache.solr.search.SolrReturnFields;
@@ -153,6 +154,21 @@ public class QueryComponent extends SearchComponent
       rb.setQuery( q );
       rb.setSortSpec( parser.getSort(true) );
       rb.setQparser(parser);
+      
+      String rankQueryString = rb.req.getParams().get(CommonParams.RQ);
+      if(rankQueryString != null) {
+        QParser rqparser = QParser.getParser(rankQueryString, defType, req);
+        Query rq = rqparser.getQuery();
+        if(rq instanceof RankQuery) {
+          RankQuery rankQuery = (RankQuery)rq;
+          rb.setRankQuery(rankQuery);
+        } else {
+          throw new SolrException(SolrException.ErrorCode.BAD_REQUEST,"rq parameter must be a RankQuery");
+        }
+      }
+
+      
+      
       
       final String cursorStr = rb.req.getParams().get(CursorMarkParams.CURSOR_MARK_PARAM);
       if (null != cursorStr) {

@@ -200,6 +200,8 @@ public interface CommonParams {
   public static final String TRUE = Boolean.TRUE.toString();
   public static final String FALSE = Boolean.FALSE.toString();
 
+  public static final String RQ = "rq";
+  
   /** Used as a local parameter on queries.  cache=false means don't check any query or filter caches.
    * cache=true is the default.
    */
