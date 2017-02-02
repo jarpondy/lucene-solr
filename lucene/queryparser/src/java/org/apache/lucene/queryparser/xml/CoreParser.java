@@ -4,6 +4,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.xml.builders.*;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.spans.SpanQuery;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -31,7 +32,7 @@ import java.io.InputStream;
 /**
  * Assembles a QueryBuilder which uses only core Lucene Query objects
  */
-public class CoreParser implements QueryBuilder {
+public class CoreParser implements QueryBuilder, SpanQueryBuilder {
 
   protected String defaultField;
   protected Analyzer analyzer;
@@ -125,6 +126,11 @@ public class CoreParser implements QueryBuilder {
     return getQuery(parseXML(xmlStream).getDocumentElement());
   }
 
+  // for test use
+  SpanQuery parseAsSpanQuery(InputStream xmlStream) throws ParserException {
+    return getSpanQuery(parseXML(xmlStream).getDocumentElement());
+  }
+
   public void addQueryBuilder(String nodeName, QueryBuilder builder) {
     queryFactory.addBuilder(nodeName, builder);
   }
@@ -134,6 +140,11 @@ public class CoreParser implements QueryBuilder {
   }
 
   public void addSpanBuilder(String nodeName, SpanQueryBuilder builder) {
+    spanFactory.addBuilder(nodeName, builder);
+  }
+
+  public void addSpanQueryBuilder(String nodeName, SpanQueryBuilder builder) {
+    queryFactory.addBuilder(nodeName, builder);
     spanFactory.addBuilder(nodeName, builder);
   }
 
@@ -160,5 +171,10 @@ public class CoreParser implements QueryBuilder {
   @Override
   public Query getQuery(Element e) throws ParserException {
     return queryFactory.getQuery(e);
+  }
+
+  @Override
+  public SpanQuery getSpanQuery(Element e) throws ParserException {
+    return spanFactory.getSpanQuery(e);
   }
 }
