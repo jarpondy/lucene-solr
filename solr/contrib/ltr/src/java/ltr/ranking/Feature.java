@@ -292,7 +292,7 @@ public abstract class Feature extends Query {
       if (r.docID() == doc) {
         score = r.score();
       }
-      final Explanation e = new Explanation(score, r.toString());
+      final Explanation e = new Explanation(score, r.name);
       return e;
     }
     

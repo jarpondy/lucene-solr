@@ -114,13 +114,11 @@ public abstract class Model extends Query {
    */
   public Explanation explain(final AtomicReaderContext context, final int doc,
       final float finalScore, final List<Explanation> featureExplanations) {
-    final Explanation e = new Explanation(finalScore, this.meta.getName()
-        + " [ " + this.meta.getType() + " ] model applied to features");
+    final Explanation e = new Explanation(finalScore, "model");
     for (final Explanation featureExplain : featureExplanations) {
       e.addDetail(featureExplain);
     }
     return e;
-
   }
 
   @Override
