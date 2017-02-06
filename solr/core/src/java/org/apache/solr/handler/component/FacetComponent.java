@@ -39,8 +39,10 @@ import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.apache.solr.common.util.StrUtils;
 import org.apache.solr.request.SimpleFacets;
+import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.search.QueryParsing;
+import org.apache.solr.search.DocSet;
 import org.apache.solr.search.SyntaxError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +70,11 @@ public class FacetComponent extends SearchComponent
     }
   }
 
+  /* Custom facet components can return a custom SimpleFacets object */
+  protected SimpleFacets newSimpleFacets(SolrQueryRequest req, DocSet docSet, SolrParams params, ResponseBuilder rb) {
+    return new SimpleFacets(req, docSet, params, rb);
+  }
+
   /**
    * Actually run the query
    */
@@ -76,10 +83,7 @@ public class FacetComponent extends SearchComponent
   {
     if (rb.doFacets) {
       SolrParams params = rb.req.getParams();
-      SimpleFacets f = new SimpleFacets(rb.req,
-              rb.getResults().docSet,
-              params,
-              rb );
+      SimpleFacets f = newSimpleFacets(rb.req, rb.getResults().docSet, params, rb);
 
       NamedList<Object> counts = f.getFacetCounts();
       String[] pivots = params.getParams( FacetParams.FACET_PIVOT );
