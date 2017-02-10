@@ -97,6 +97,7 @@ import org.apache.solr.util.BoundedTreeSet;
 import org.apache.solr.util.DateMathParser;
 import org.apache.solr.util.DefaultSolrThreadFactory;
 import org.apache.solr.util.LongPriorityQueue;
+import org.apache.solr.util.Predicate;
 
 /**
  * A class that generates simple Facet information for a request.
@@ -334,6 +335,14 @@ public class SimpleFacets {
     ENUM, FC, FCS;
   }
 
+  protected Predicate<BytesRef> newExcludeBytesRefFilter(String field, SolrParams params) {
+    return null;
+  }
+
+  protected Predicate<BytesRef> newBytesRefFilter(String field, SolrParams params) {
+    return newExcludeBytesRefFilter(field, params);
+  }
+
   public NamedList<Integer> getTermCounts(String field) throws IOException {
     return getTermCounts(field, this.docs);
   }
@@ -435,7 +444,8 @@ public class SimpleFacets {
           break;
         case FC:
           if (sf.hasDocValues()) {
-            counts = DocValuesFacets.getCounts(searcher, base, field, offset,limit, mincount, missing, sort, prefix);
+            final Predicate<BytesRef> termFilter = newBytesRefFilter(field, params);
+            counts = DocValuesFacets.getCounts(searcher, base, field, offset,limit, mincount, missing, sort, prefix, termFilter);
           } else if (multiToken || TrieField.getMainValuePrefix(ft) != null) {
             UnInvertedField uif = UnInvertedField.getUnInvertedField(field, searcher);
             counts = uif.getCounts(searcher, base, offset, limit, mincount,missing,sort,prefix);

@@ -40,6 +40,7 @@ import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.DocSet;
 import org.apache.solr.search.SolrIndexSearcher;
 import org.apache.solr.util.LongPriorityQueue;
+import org.apache.solr.util.Predicate;
 
 /**
  * Computes term facets for docvalues field (single or multivalued).
@@ -56,7 +57,7 @@ import org.apache.solr.util.LongPriorityQueue;
 public class DocValuesFacets {
   private DocValuesFacets() {}
   
-  public static NamedList<Integer> getCounts(SolrIndexSearcher searcher, DocSet docs, String fieldName, int offset, int limit, int mincount, boolean missing, String sort, String prefix) throws IOException {
+  public static NamedList<Integer> getCounts(SolrIndexSearcher searcher, DocSet docs, String fieldName, int offset, int limit, int mincount, boolean missing, String sort, String prefix, Predicate<BytesRef> termFilter) throws IOException {
     SchemaField schemaField = searcher.getSchema().getField(fieldName);
     FieldType ft = schemaField.getType();
     NamedList<Integer> res = new NamedList<>();
@@ -170,6 +171,13 @@ public class DocValuesFacets {
             // NOTE: we use c>min rather than c>=min as an optimization because we are going in
             // index order, so we already know that the keys are ordered.  This can be very
             // important if a lot of the counts are repeated (like zero counts would be).
+
+            if (termFilter != null) {
+              si.lookupOrd(startTermIndex+i, br);
+              if (!termFilter.test(br)) {
+                continue;
+              }
+            }
 
             // smaller term numbers sort higher, so subtract the term number instead
             long pair = (((long)c)<<32) + (Integer.MAX_VALUE - i);
