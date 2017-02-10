@@ -29,10 +29,8 @@ import org.apache.lucene.queryparser.xml.CoreParser;
 import org.apache.lucene.queryparser.xml.ParserException;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.MatchNoDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.spans.SpanBoostQuery;
 import org.apache.lucene.search.spans.SpanNearQuery;
 import org.apache.lucene.search.spans.SpanOrQuery;
 import org.apache.lucene.search.spans.SpanQuery;
@@ -85,7 +83,7 @@ public class TestSolrCoreParser extends LuceneTestCase {
 
   public void testGoodbye() throws IOException, ParserException {
     final Query query = parseXmlString("<GoodbyeQuery/>");
-    assertTrue(query instanceof MatchNoDocsQuery);
+    assertTrue(query instanceof BooleanQuery);
   }
 
   public void testApacheLuceneSolr() throws IOException, ParserException {
@@ -115,13 +113,13 @@ public class TestSolrCoreParser extends LuceneTestCase {
     final BooleanQuery bq = (BooleanQuery)query;
     assertEquals(2, bq.clauses().size());
     assertTrue(bq.clauses().get(0).getQuery() instanceof MatchAllDocsQuery);
-    assertTrue(bq.clauses().get(1).getQuery() instanceof MatchNoDocsQuery);
+    assertTrue(bq.clauses().get(1).getQuery() instanceof BooleanQuery);
   }
 
   private static SpanQuery unwrapSpanBoostQuery(Query query) {
-    assertTrue(query instanceof SpanBoostQuery);
-    final SpanBoostQuery spanBoostQuery = (SpanBoostQuery)query;
-    return spanBoostQuery.getQuery();
+    assertTrue(query instanceof SpanQuery);
+    final SpanQuery spanQuery = (SpanQuery)query;
+    return spanQuery;
   }
 
   // test custom query (HandyQueryBuilder) wrapping a SpanQuery
