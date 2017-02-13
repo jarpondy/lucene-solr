@@ -24,12 +24,11 @@ import java.util.Map;
 
 import org.apache.lucene.analysis.BaseTokenStreamTestCase;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.ja.JapaneseTokenizerFactory;
 import org.apache.lucene.analysis.util.StringMockResourceLoader;
 
 /**
- * Simple tests for {@link org.apache.lucene.analysis.ja.JapaneseNumberFilterFactory}
+ * Simple tests for {@link com.bloomberg.news.lucene.analysis.ja.JapaneseNumberFilterFactory}
  */
 public class TestJapaneseNumberFilterFactory extends BaseTokenStreamTestCase {
   public void testBasics() throws IOException {
