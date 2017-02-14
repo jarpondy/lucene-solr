@@ -20,7 +20,7 @@
   <!ENTITY hadoop.version "2.0.5-alpha">
 ]>
 <ivy-module version="2.0">
-    <info organisation="org.apache.solr" module="solr-test-framework"/>
+    <info organisation="org.apache.solr" module="test-framework"/>
 
     <configurations>
       <conf name="default" />

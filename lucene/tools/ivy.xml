@@ -17,7 +17,7 @@
    under the License.    
 -->
 <ivy-module version="2.0">
-    <info organisation="org.apache.lucene" module="core-tools"/>
+    <info organisation="org.apache.lucene" module="tools"/>
     <dependencies>
        <dependency org="org.apache.ant" name="ant" rev="${/org.apache.ant/ant}" transitive="false" />
        <exclude org="*" ext="*" matcher="regexp" type="${ivy.exclude.types}"/>
