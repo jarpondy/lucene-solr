@@ -234,8 +234,8 @@ public class GetMavenDependenciesTask extends Task {
    * Visits all ivy.xml files and collects module and organisation attributes into a map.
    */
   private static Map<String,String> getIvyModuleInfo(Resources ivyXmlResources,
-      DocumentBuilder documentBuilder, XPath xpath) {
-    Map<String,String> ivyInfoModuleToOrganisation = new HashMap<String,String>();
+      final DocumentBuilder documentBuilder, final XPath xpath) {
+    final Map<String,String> ivyInfoModuleToOrganisation = new HashMap<String,String>();
     traverseIvyXmlResources(ivyXmlResources, new Consumer<File>() {
       @Override
       public void accept(File f) {
