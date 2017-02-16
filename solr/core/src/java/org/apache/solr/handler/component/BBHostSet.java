@@ -90,11 +90,11 @@ public class BBHostSet implements ReplicaListTransformer {
   }
 
   public void transform(List<?> choices) {
-    transform((List<Replica>)choices);
+    doTransform((List<Replica>)choices);
   }
 
   // default visibility for test use
-  boolean transform(List<Replica> replicas) {
+  boolean doTransform(List<Replica> replicas) {
     if (hostWeights == null) {
       return false;
     }

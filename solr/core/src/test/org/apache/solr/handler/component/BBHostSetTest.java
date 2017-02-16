@@ -150,7 +150,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
       BBHostSet hostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
 
       live = copy(liveAB);
-      assertTrue("transform", hostSet.transform(live));
+      assertTrue("transform", hostSet.doTransform(live));
       if (permutationSeed < permutationMod/2) {
         assertEquals("initial AB; seed " + permutationSeed, signatureAB, formReplicaOrderSig(live));
       } else {
@@ -158,7 +158,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
       }
 
       live = copy(liveBA);
-      assertTrue("transform", hostSet.transform(live));
+      assertTrue("transform", hostSet.doTransform(live));
       if (permutationSeed < permutationMod/2) {
         assertEquals("initial BA; seed " + permutationSeed, signatureAB, formReplicaOrderSig(live));
       } else {
@@ -179,7 +179,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
       BBHostSet hostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
 
       live = copy(liveAll);
-      assertTrue("transform", hostSet.transform(live));
+      assertTrue("transform", hostSet.doTransform(live));
       if (permutationSeed < permutationMod/2) {
         assertEquals("seed " + permutationSeed, signatureABC, formReplicaOrderSig(live));
       } else {
@@ -224,7 +224,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
       BBHostSet hostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
 
       live = copy(liveAll);
-      assertTrue("transform", hostSet.transform(live));
+      assertTrue("transform", hostSet.doTransform(live));
       switch (permutationSeed/magnifier) {
       // weights = { hostA=50 hostB=25 hostC=25 } gives totalWeight=100
       // half the cases get hostA first, and amongst those getting hostA first, the second choice equally divided between hostB and hostC
@@ -274,7 +274,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
     final int n = permutationMod*100;
     for (int gen = 0; gen < n; gen++) {
       live = copy(liveAll);
-      assertTrue("transform", hostSet.transform(live));
+      assertTrue("transform", hostSet.doTransform(live));
       String sig = formReplicaOrderSig(live);
       stats.put(sig, getOrDefault(stats, sig, 0) + 1);
     }
@@ -314,7 +314,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
 
     for (int gen = 0; gen < n; gen++) {
       live = copy(liveAll);
-      assertTrue("transform", hostSet.transform(live));
+      assertTrue("transform", hostSet.doTransform(live));
       String sig = formReplicaOrderSig(live);
       stats.put(sig, getOrDefault(stats, sig, 0) + 1);
     }
