@@ -127,9 +127,9 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
                 replicaStrategy, permutationSeed, permutationMod);
       bbHostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
     }
-    public void transform(List<?> replicas)
+    public void transform(List<?> choices)
     {
-      bbHostSet.transform((List<Replica>)replicas);
+      bbHostSet.transform(choices);
     }
   };
 
