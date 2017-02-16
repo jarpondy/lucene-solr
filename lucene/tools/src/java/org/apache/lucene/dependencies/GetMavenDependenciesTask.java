@@ -56,7 +56,6 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -228,6 +227,11 @@ public class GetMavenDependenciesTask extends Task {
         }
       }
     }
+  }
+
+  @Deprecated // Substitute for Java *'s Consumer class whilst we are still on Java 7
+  private static abstract class Consumer<T> {
+    abstract public void accept(T t);
   }
 
   /**
