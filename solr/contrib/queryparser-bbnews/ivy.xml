@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="com.bloomberg.news" module="queryparser-bbnews"/>
+    <info organisation="com.bloomberg.news.solr" module="queryparser-bbnews"/>
     <dependencies>
       <!-- Currently needed by TestWildParser. TODO: switch to not use ICUFoldingFilter -->
       <dependency org="com.ibm.icu" name="icu4j" rev="${/com.ibm.icu/icu4j}" transitive="false"/>
