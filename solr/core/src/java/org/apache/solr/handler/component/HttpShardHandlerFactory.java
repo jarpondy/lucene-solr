@@ -87,22 +87,6 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
 
   private String scheme = null;
 
-  protected interface ReplicaListTransformer {
-    public void transform(List<Replica> replicas);
-  };
-  
-  protected class ShufflingReplicaListTransformer implements ReplicaListTransformer {
-    private final Random r;
-    public ShufflingReplicaListTransformer(Random r)
-    {
-      this.r = r;      
-    }
-    public void transform(List<Replica> replicas)
-    {
-      Collections.shuffle(replicas, r);
-    }
-  };
-  
   protected class BBSolrHostReplicaListTransformer implements ReplicaListTransformer {
     private final BBHostSet bbHostSet;
     private static final int DEFAULT_MOD = 100;
@@ -143,9 +127,9 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
                 replicaStrategy, permutationSeed, permutationMod);
       bbHostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
     }
-    public void transform(List<Replica> replicas)
+    public void transform(List<?> replicas)
     {
-      bbHostSet.transform(replicas);
+      bbHostSet.transform((List<Replica>)replicas);
     }
   };
 

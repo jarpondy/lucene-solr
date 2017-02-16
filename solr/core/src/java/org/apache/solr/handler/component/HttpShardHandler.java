@@ -349,7 +349,7 @@ public class HttpShardHandler extends ShardHandler {
         }
 
 
-        HttpShardHandlerFactory.ReplicaListTransformer replicaListTransformer = httpShardHandlerFactory.getReplicaListTransformer(req);
+        final ReplicaListTransformer replicaListTransformer = httpShardHandlerFactory.getReplicaListTransformer(req);
 
         for (int i=0; i<rb.shards.length; i++) {
           if (rb.shards[i] == null) {
