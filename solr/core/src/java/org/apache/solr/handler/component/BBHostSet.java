@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.solr.common.cloud.Replica;
 
-public class BBHostSet implements ReplicaListTransformer {
+public class BBHostSet {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   static final String HOST_SET_DELIM = ";";
@@ -89,12 +89,7 @@ public class BBHostSet implements ReplicaListTransformer {
     int newPermutationMax;
   }
 
-  public void transform(List<?> choices) {
-    doTransform((List<Replica>)choices);
-  }
-
-  // default visibility for test use
-  boolean doTransform(List<Replica> replicas) {
+  public boolean doTransform(List<Replica> replicas) {
     if (hostWeights == null) {
       return false;
     }

@@ -25,6 +25,7 @@ import org.apache.solr.client.solrj.request.QueryRequest;
 import org.apache.solr.common.cloud.Replica;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.ModifiableSolrParams;
+import org.apache.solr.common.params.ShardParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.ExecutorUtil;
 import org.apache.solr.common.util.NamedList;
@@ -130,7 +131,9 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
     }
     public void transform(List<?> choices)
     {
-      bbHostSet.transform(choices);
+      // Because replicaAffinity=... cannot be combined with preferLocalShards=true or
+      // with shards=... we are confident here that casting to List<Replica> is safe.
+      bbHostSet.doTransform((List<Replica>)choices);
     }
   };
 
@@ -289,8 +292,11 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
     
     String[] replicaAffinities = params.getParams("replicaAffinity");
     if (replicaAffinities != null) {
-      if (params.getBool(CommonParams.PREFER_LOCAL_SHARDS, false)) {
-        log.debug("preferring '{}' over replicaAffinity={}", CommonParams.PREFER_LOCAL_SHARDS, replicaAffinities);
+
+      // replicaAffinity=... cannot be combined with preferLocalShards=true or with shards=...
+
+      if (params.getBool(CommonParams.PREFER_LOCAL_SHARDS, false) || null != params.get(ShardParams.SHARDS)) {
+          log.debug("preferring '{}' or '{}' over replicaAffinity={}", CommonParams.PREFER_LOCAL_SHARDS, ShardParams.SHARDS, replicaAffinities);
         return super_getReplicaListTransformer(req);
       }
       for (String replicaAffinity : replicaAffinities) {
