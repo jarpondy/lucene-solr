@@ -23,6 +23,7 @@ import org.apache.solr.client.solrj.impl.HttpClientUtil;
 import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
 import org.apache.solr.client.solrj.request.QueryRequest;
 import org.apache.solr.common.cloud.Replica;
+import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.ExecutorUtil;
@@ -288,6 +289,10 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
     
     String[] replicaAffinities = params.getParams("replicaAffinity");
     if (replicaAffinities != null) {
+      if (params.getBool(CommonParams.PREFER_LOCAL_SHARDS, false)) {
+        log.debug("preferring '{}' over replicaAffinity={}", CommonParams.PREFER_LOCAL_SHARDS, replicaAffinities);
+        return super_getReplicaListTransformer(req);
+      }
       for (String replicaAffinity : replicaAffinities) {
         log.debug("replicaAffinity=={} ; params = {}", replicaAffinity, params);
         if ("solrhost".equals(replicaAffinity)) {
@@ -296,9 +301,15 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
           String replicaPermutationSeed = params.get("replicaAffinity.solrhost.seed");
           return new BBSolrHostReplicaListTransformer(replicaStrategy, replicaPermutationSeed, replicaPermutationMod, r);
         }
+        log.warn("ignoring unsupported replicaAffinity={}", replicaAffinity);
       }
     }
 
+    return super_getReplicaListTransformer(req);
+  }
+
+  ReplicaListTransformer super_getReplicaListTransformer(final SolrQueryRequest req)
+  {
     return shufflingReplicaListTransformer;
   }
 
