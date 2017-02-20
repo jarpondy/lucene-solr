@@ -113,7 +113,7 @@ public class FacetComponent extends org.apache.solr.handler.component.FacetCompo
                 Predicate<BytesRef> filter = new Predicate<BytesRef>() {
                     @Override
                     public boolean test(BytesRef bytesRef) {
-                        return !excludeTerms.contains(bytesRef.utf8ToString());
+                        return !excludeTerms.contains(bytesRef);
                     }
                 };
 
