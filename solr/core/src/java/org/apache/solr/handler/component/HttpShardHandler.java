@@ -114,10 +114,6 @@ public class HttpShardHandler extends ShardHandler {
 
   @Override
   public void submit(final ShardRequest sreq, final String shard, final ModifiableSolrParams params) {
-
-    // this is when we start waiting for the submission to be sent
-    final long startTime0 = System.nanoTime();
-
     // do this outside of the callable for thread safety reasons
     final List<String> urls = getURLs(shard);
 
@@ -134,9 +130,6 @@ public class HttpShardHandler extends ShardHandler {
         SimpleSolrResponse ssr = new SimpleSolrResponse();
         srsp.setSolrResponse(ssr);
         long startTime = System.nanoTime();
-
-        srsp.setSubmitWaitingTime_start(startTime0);
-        srsp.setSubmitWaitingTime_end(startTime); // this is when the submission has been picked up to be sent
 
         try {
           params.remove(CommonParams.WT); // use default (currently javabin)
@@ -183,9 +176,7 @@ public class HttpShardHandler extends ShardHandler {
           }
         }
 
-        final long endTime = System.nanoTime();
-        ssr.elapsedTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
-        srsp.setTakeWaitingTime_start(endTime); // this is when we start waiting for the received response to be taken for further processing
+        ssr.elapsedTime = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
 
         return srsp;
       }
@@ -218,7 +209,6 @@ public class HttpShardHandler extends ShardHandler {
         Future<ShardResponse> future = completionService.take();
         pending.remove(future);
         ShardResponse rsp = future.get();
-        rsp.setTakeWaitingTime_end(System.nanoTime());
         if (bailOnError && rsp.getException() != null) return rsp; // if exception, return immediately
         // add response to the response list... we do this after the take() and
         // not after the completion of "call" so we know when the last response
@@ -398,14 +388,14 @@ public class HttpShardHandler extends ShardHandler {
           }
         }
       }
-      String shards_rows = params.get(ShardParams.SHARDS_ROWS);
-      if(shards_rows != null) {
-        rb.shards_rows = Integer.parseInt(shards_rows);
-      }
-      String shards_start = params.get(ShardParams.SHARDS_START);
-      if(shards_start != null) {
-        rb.shards_start = Integer.parseInt(shards_start);
-      }
+    String shards_rows = params.get(ShardParams.SHARDS_ROWS);
+    if(shards_rows != null) {
+      rb.shards_rows = Integer.parseInt(shards_rows);
+    }
+    String shards_start = params.get(ShardParams.SHARDS_START);
+    if(shards_start != null) {
+      rb.shards_start = Integer.parseInt(shards_start);
+    }
   }
 
 

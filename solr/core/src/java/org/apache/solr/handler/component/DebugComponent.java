@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.lucene.search.Query;
@@ -53,13 +52,6 @@ import org.apache.solr.util.SolrPluginUtils;
 public class DebugComponent extends SearchComponent
 {
   public static final String COMPONENT_NAME = "debug";
-  
-  private static final String DISTRIB_TIMING = "distribTiming";
-  
-  private static final String SUBMIT_WAITING_TIME = "submitWaiting";
-  private static final String ELAPSED_TIME = "elapsed";
-  private static final String TAKE_WAITING_TIME = "takeWaiting";
-  private static final String BREAKDOWN = "breakdown";
   
   /**
    * A counter to ensure that no RID is equal, even if they fall in the same millisecond
@@ -185,124 +177,8 @@ public class DebugComponent extends SearchComponent
     }
   }
 
-  private class Metric {
-    private long count = 0;
-    private long sum = 0;
-    private long min = Long.MAX_VALUE;
-    private long max = Long.MIN_VALUE;
-    private final TimeUnit sourceUnit;
-    
-    Metric() {
-      this.sourceUnit = null;
-    }
-
-    Metric(TimeUnit sourceUnit) {
-      this.sourceUnit = sourceUnit;
-    }
-
-    void record(long val) {
-      count += 1;
-      sum += val;
-      if (val < min) {
-        min = val;
-      }
-      if (val > max) {
-        max = val;
-      }
-    }
-    
-    void add(final Metric other) {
-      this.count += other.count;
-      this.sum += other.sum;
-      if (other.min < this.min) {
-        this.min = other.min;
-      }
-      if (other.max > this.max) {
-        this.max = other.max;
-      }
-    }
-
-    Object toObject()
-    {
-      return toObject(sourceUnit);
-    }
-    
-    Object toObject(TimeUnit destinationUnit)
-    {
-      SimpleOrderedMap<Object> nl = new SimpleOrderedMap<>();
-      nl.add("count", count);
-      if (sourceUnit != destinationUnit) {
-        nl.add("sum", destinationUnit.convert(sum, sourceUnit));
-        nl.add("min", destinationUnit.convert(min, sourceUnit));
-        nl.add("max", destinationUnit.convert(max, sourceUnit));        
-      } else {
-        nl.add("sum", sum);
-        nl.add("min", min);
-        nl.add("max", max);
-      }
-      return nl;
-    }    
-
-    @Override
-    public String toString()
-    {
-      return toObject().toString();
-    }
-  };
-  
   @Override
   public void handleResponses(ResponseBuilder rb, ShardRequest sreq) {
-    if (rb.isDebugTimings() && rb.stage > ResponseBuilder.STAGE_START) {
-      Metric submitWaitingTime = new Metric(TimeUnit.NANOSECONDS);
-      Metric elapsedTime = new Metric(TimeUnit.MILLISECONDS);
-      Metric takeWaitingTime = new Metric(TimeUnit.NANOSECONDS);
-      NamedList<Object> debug = null;
-      
-      for (ShardResponse srsp : sreq.responses) {
-        submitWaitingTime.record(srsp.getSubmitWaitingTime());
-        elapsedTime.record(srsp.getSolrResponse().getElapsedTime()); 
-        takeWaitingTime.record(srsp.getTakeWaitingTime());            
-
-        if (srsp.getException() != null) {
-          // can't expect the debug content if there was an exception for this request
-          // this should only happen when using shards.tolerant=true
-          continue;
-        }
-        NamedList sdebug = (NamedList)srsp.getSolrResponse().getResponse().get("debug");
-        debug = (NamedList)merge(sdebug, debug, EXCLUDE_SET, true);
-      }
-      
-      if (debug != null) {
-        debug = convertMetric(debug);
-      }
-      
-      final String stage = stages.get(rb.stage);
-      
-      NamedList<Object> debug_info = rb.getDebugInfo();
-      if (debug_info == null) {
-        debug_info = new SimpleOrderedMap<>();
-      }        
-      
-      NamedList<Object> distribTiming_info = (NamedList<Object>) debug_info.get(DISTRIB_TIMING);
-      if (distribTiming_info == null) {
-        debug_info.add(DISTRIB_TIMING, new SimpleOrderedMap<>());
-        distribTiming_info = (NamedList<Object>) debug_info.get(DISTRIB_TIMING);
-      }
-      
-      NamedList<Object> stage_info = (NamedList<Object>) distribTiming_info.get(stage);
-      if (stage_info == null) {
-        distribTiming_info.add(stage, new SimpleOrderedMap<>());
-        stage_info = (NamedList<Object>) distribTiming_info.get(stage);
-      }
-      
-      stage_info.add(SUBMIT_WAITING_TIME, submitWaitingTime.toObject(TimeUnit.MILLISECONDS));        
-      stage_info.add(ELAPSED_TIME, elapsedTime.toObject(TimeUnit.MILLISECONDS));
-      stage_info.add(TAKE_WAITING_TIME, takeWaitingTime.toObject(TimeUnit.MILLISECONDS));        
-      stage_info.add(BREAKDOWN, debug);
-      
-      rb.setDebugInfo(debug_info);
-    }
-    
     if (rb.isDebugTrack() && rb.isDistrib && !rb.finished.isEmpty()) {
       @SuppressWarnings("unchecked")
       List<Object> stageList = (List<Object>) ((NamedList<Object>)rb.getDebugInfo().get("track")).get(stages.get(rb.stage));
@@ -336,7 +212,7 @@ public class DebugComponent extends SearchComponent
             continue;
           }
           NamedList sdebug = (NamedList)srsp.getSolrResponse().getResponse().get("debug");
-          info = (NamedList)merge(sdebug, info, EXCLUDE_SET, false);
+          info = (NamedList)merge(sdebug, info, EXCLUDE_SET);
           if ((sreq.purpose & ShardRequest.PURPOSE_GET_DEBUG) != 0) {
             hasGetDebugResponses = true;
             if (rb.isDebugResults()) {
@@ -397,9 +273,7 @@ public class DebugComponent extends SearchComponent
     if(responseHeader != null) {
       namedList.add("QTime", responseHeader.get("QTime"));
     }
-    namedList.add(SUBMIT_WAITING_TIME, shardResponse.getSubmitWaitingTime());            
-    namedList.add(ELAPSED_TIME, shardResponse.getSolrResponse().getElapsedTime());
-    namedList.add(TAKE_WAITING_TIME, shardResponse.getTakeWaitingTime());            
+    namedList.add("ElapsedTime", shardResponse.getSolrResponse().getElapsedTime());
     namedList.add("RequestPurpose", shardResponse.getShardRequest().params.get(CommonParams.REQUEST_PURPOSE));
     SolrDocumentList docList = (SolrDocumentList)shardResponse.getSolrResponse().getResponse().get("response");
     if(docList != null) {
@@ -409,22 +283,7 @@ public class DebugComponent extends SearchComponent
     return namedList;
   }
 
-  NamedList<Object> convertMetric(NamedList<Object> info) {
-    if (info != null) {
-      for (int ii=0; ii<info.size(); ii++) {
-        Object sval = info.getVal(ii);
-        if (sval instanceof Metric) {
-          info.setVal(ii, ((Metric) sval).toObject());
-        }
-        else if (sval instanceof NamedList) {
-          info.setVal(ii, convertMetric((NamedList<Object>)sval));
-        }
-      }
-    }
-    return info;
-  }
-  
-  Object merge(Object source, Object dest, Set<String> exclude, final boolean metrics) {
+  Object merge(Object source, Object dest, Set<String> exclude) {
     if (source == null) return dest;
     if (dest == null) {
       if (source instanceof NamedList) {
@@ -448,19 +307,12 @@ public class DebugComponent extends SearchComponent
           }
           return ((Number)source).longValue() + ((Number)dest).longValue();
         }
-        else if (dest instanceof Metric) {
-          ((Metric) dest).record(((Number)source).longValue());
-          return dest;
-        }
         // fall through
       } else if (source instanceof String) {
         if (source.equals(dest)) {
           return dest;
         }
         // fall through
-      } else if (source instanceof Metric && dest instanceof Metric) {
-        ((Metric) dest).add(((Metric) source));
-        return dest;
       }
     }
 
@@ -477,12 +329,6 @@ public class DebugComponent extends SearchComponent
         Object sval = sl.getVal(i);
         int didx = -1;
 
-        if (metrics == true && sval != null && sval instanceof Number) {
-            Metric mm = new Metric();
-            mm.record(((Number)sval).longValue());
-            sval = mm;
-        }
-        
         // optimize case where elements are in same position
         if (i < dl.size()) {
           String dkey = dl.getName(i);
@@ -496,9 +342,9 @@ public class DebugComponent extends SearchComponent
         }
 
         if (didx == -1) {
-          tmp.add(skey, merge(sval, null, null, metrics));
+          tmp.add(skey, merge(sval, null, null));
         } else {
-          dl.setVal(didx, merge(sval, dl.getVal(didx), null, metrics));
+          dl.setVal(didx, merge(sval, dl.getVal(didx), null));
         }
       }
       dl.addAll(tmp);
