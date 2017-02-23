@@ -1,4 +1,4 @@
-package org.apache.solr.handler.component;
+package com.bloomberg.news.solr.handler.component;
 
 import org.apache.solr.SolrTestCaseJ4;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import java.util.Random;
 import org.apache.solr.common.cloud.Replica;
 import org.apache.solr.common.cloud.ZkStateReader;
 
-public class BBHostSetTest extends SolrTestCaseJ4 {
+public class HostSetTest extends SolrTestCaseJ4 {
   private static Random r;
 
   private static Replica hostA;
@@ -49,7 +49,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
     String replicaSig = "";
     String delim = "";
     for (Replica replica: replicas) {
-      replicaSig += (delim + BBHostSet.node_name(replica));
+      replicaSig += (delim + HostSet.node_name(replica));
       delim = ",";
     }
     return replicaSig;
@@ -71,7 +71,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
     }
     return defaultValue;
   }
-  
+
   @BeforeClass
   private static void testInit() {
     r = random();
@@ -132,9 +132,9 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
 
   @Test
   public void checkDelimiters() throws Exception {
-    assertEquals("HOST_SET_DELIM", ";", BBHostSet.HOST_SET_DELIM);
-    assertEquals("WEIGHT_HOST_DELIM", ":", BBHostSet.WEIGHT_HOST_DELIM);
-    assertEquals("HOST_DELIM", ",", BBHostSet.HOST_DELIM);
+    assertEquals("HOST_SET_DELIM", ";", HostSet.HOST_SET_DELIM);
+    assertEquals("WEIGHT_HOST_DELIM", ":", HostSet.WEIGHT_HOST_DELIM);
+    assertEquals("HOST_DELIM", ",", HostSet.HOST_DELIM);
   }
 
   @Test
@@ -147,7 +147,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
     LinkedList<Replica> live = null;
 
     for (int permutationSeed = 0; permutationSeed < permutationMod; permutationSeed++) {
-      BBHostSet hostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
+      HostSet hostSet = new HostSet(replicaStrategy, permutationSeed, permutationMod, r);
 
       live = copy(liveAB);
       assertTrue("transform", hostSet.doTransform(live));
@@ -176,7 +176,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
     LinkedList<Replica> live = null;
 
     for (int permutationSeed = 0; permutationSeed < permutationMod; permutationSeed++) {
-      BBHostSet hostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
+      HostSet hostSet = new HostSet(replicaStrategy, permutationSeed, permutationMod, r);
 
       live = copy(liveAll);
       assertTrue("transform", hostSet.doTransform(live));
@@ -221,7 +221,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
     final int magnifier = (r.nextBoolean() ? 1 : 10);
     final int permutationMod = 12 * magnifier;
     for (int permutationSeed = 0; permutationSeed < permutationMod; permutationSeed++) {
-      BBHostSet hostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
+      HostSet hostSet = new HostSet(replicaStrategy, permutationSeed, permutationMod, r);
 
       live = copy(liveAll);
       assertTrue("transform", hostSet.doTransform(live));
@@ -263,7 +263,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
     final String replicaStrategy = "";
     final int permutationSeed = 0;
     final int permutationMod = 12;
-    BBHostSet hostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
+    HostSet hostSet = new HostSet(replicaStrategy, permutationSeed, permutationMod, r);
 
     LinkedList<Replica> liveAll = copy(liveABC);
     Collections.shuffle(liveAll, r);
@@ -302,7 +302,7 @@ public class BBHostSetTest extends SolrTestCaseJ4 {
     final String replicaStrategy = "50:hostA;25:hostB,hostC";
     final int permutationSeed = 0;
     final int permutationMod = 1;
-    BBHostSet hostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
+    HostSet hostSet = new HostSet(replicaStrategy, permutationSeed, permutationMod, r);
 
     LinkedList<Replica> liveAll = copy(liveABC);
     Collections.shuffle(liveAll, r);

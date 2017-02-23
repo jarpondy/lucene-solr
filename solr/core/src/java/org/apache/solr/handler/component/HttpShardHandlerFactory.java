@@ -22,11 +22,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpClientUtil;
 import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
 import org.apache.solr.client.solrj.request.QueryRequest;
-import org.apache.solr.common.cloud.Replica;
-import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.ModifiableSolrParams;
-import org.apache.solr.common.params.ShardParams;
-import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.ExecutorUtil;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.StrUtils;
@@ -38,15 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletionService;
@@ -88,54 +78,6 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
   boolean accessPolicy = false;
 
   private String scheme = null;
-
-  protected class BBSolrHostReplicaListTransformer implements ReplicaListTransformer {
-    private final BBHostSet bbHostSet;
-    private static final int DEFAULT_MOD = 100;
-    private static final String DEFAULT_STRATEGY = "";
-    public BBSolrHostReplicaListTransformer(String replicaStrategy, String replicaPermutationSeed, String replicaPermutationMod, Random r)
-    {
-      log.debug("Raw: replication strategy = {} ; seed = {} ; mod = {}",
-                replicaStrategy, replicaPermutationSeed, replicaPermutationMod);
-      if (replicaStrategy == null) {
-        log.warn("Missing replication strategy. Defaulting to uniform host weights.");
-        replicaStrategy = DEFAULT_STRATEGY;
-      }
-
-      int permutationMod;
-      if (replicaPermutationMod == null) {
-        log.warn("Missing replication mod. Defaulting to {}.", DEFAULT_MOD);
-        permutationMod = DEFAULT_MOD;
-      } else {
-        permutationMod = Integer.parseInt(replicaPermutationMod);
-        if (permutationMod <= 0) {
-          log.warn("Invalid mod ({}). Defaulting to {}.", permutationMod, DEFAULT_MOD);
-          permutationMod = DEFAULT_MOD;
-        }
-      }
-
-      int permutationSeed;
-      if (replicaPermutationSeed == null) {
-        permutationSeed = -1;
-      } else {
-        permutationSeed = Integer.parseInt(replicaPermutationSeed);
-      }
-      if (permutationSeed < 0 || permutationSeed >= permutationMod) {
-        permutationSeed = r.nextInt(permutationMod);
-        log.warn("Missing or invalid seed ({}), defaulting to random seed ({}).", replicaPermutationSeed, permutationSeed);
-      }
-
-      log.debug("Using: replication strategy = {} ; seed = {} ; mod = {}",
-                replicaStrategy, permutationSeed, permutationMod);
-      bbHostSet = new BBHostSet(replicaStrategy, permutationSeed, permutationMod, r);
-    }
-    public void transform(List<?> choices)
-    {
-      // Because replicaAffinity=... cannot be combined with preferLocalShards=true or
-      // with shards=... we are confident here that casting to List<Replica> is safe.
-      bbHostSet.doTransform((List<Replica>)choices);
-    }
-  };
 
   protected final Random r = new Random();
 
@@ -286,35 +228,6 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
   }
 
   protected ReplicaListTransformer getReplicaListTransformer(final SolrQueryRequest req)
-  {
-    SolrParams params = req.getParams();
-    log.debug("getReplicaListTransformer ; params = {}", params);
-    
-    String[] replicaAffinities = params.getParams("replicaAffinity");
-    if (replicaAffinities != null) {
-
-      // replicaAffinity=... cannot be combined with preferLocalShards=true or with shards=...
-
-      if (params.getBool(CommonParams.PREFER_LOCAL_SHARDS, false) || null != params.get(ShardParams.SHARDS)) {
-          log.debug("preferring '{}' or '{}' over replicaAffinity={}", CommonParams.PREFER_LOCAL_SHARDS, ShardParams.SHARDS, replicaAffinities);
-        return super_getReplicaListTransformer(req);
-      }
-      for (String replicaAffinity : replicaAffinities) {
-        log.debug("replicaAffinity=={} ; params = {}", replicaAffinity, params);
-        if ("solrhost".equals(replicaAffinity)) {
-          String replicaStrategy = params.get("replicaAffinity.solrhost.hostWeights");
-          String replicaPermutationMod = params.get("replicaAffinity.solrhost.mod");
-          String replicaPermutationSeed = params.get("replicaAffinity.solrhost.seed");
-          return new BBSolrHostReplicaListTransformer(replicaStrategy, replicaPermutationSeed, replicaPermutationMod, r);
-        }
-        log.warn("ignoring unsupported replicaAffinity={}", replicaAffinity);
-      }
-    }
-
-    return super_getReplicaListTransformer(req);
-  }
-
-  ReplicaListTransformer super_getReplicaListTransformer(final SolrQueryRequest req)
   {
     return shufflingReplicaListTransformer;
   }

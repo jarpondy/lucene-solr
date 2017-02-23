@@ -1,4 +1,4 @@
-package org.apache.solr.handler.component;
+package com.bloomberg.news.solr.handler.component;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.solr.common.cloud.Replica;
 
-public class BBHostSet {
+public class HostSet {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   static final String HOST_SET_DELIM = ";";
@@ -42,7 +42,7 @@ public class BBHostSet {
   private final int permutationMod;
   private final Random r;
 
-  public BBHostSet(String replicaStrategy, int replicaPermutationSeed, int replicaPermutationMod, Random rand) {
+  public HostSet(String replicaStrategy, int replicaPermutationSeed, int replicaPermutationMod, Random rand) {
     permutationSeed = replicaPermutationSeed;
     permutationMod = replicaPermutationMod;
     hostWeights = create_host_weight_map(replicaStrategy);
