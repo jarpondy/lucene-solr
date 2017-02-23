@@ -137,7 +137,7 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
     }
   };
 
-  private final Random r = new Random();
+  protected final Random r = new Random();
 
   private final ReplicaListTransformer shufflingReplicaListTransformer = new ShufflingReplicaListTransformer(r);
   
@@ -285,7 +285,7 @@ public class HttpShardHandlerFactory extends ShardHandlerFactory implements org.
     return urls;
   }
 
-  ReplicaListTransformer getReplicaListTransformer(final SolrQueryRequest req)
+  protected ReplicaListTransformer getReplicaListTransformer(final SolrQueryRequest req)
   {
     SolrParams params = req.getParams();
     log.debug("getReplicaListTransformer ; params = {}", params);
